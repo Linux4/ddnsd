@@ -159,16 +159,16 @@ int main(int argc, char** argv) {
 			f.close();
 			//Write actual time
 			std::time_t tt = time(0);
-			f.open("/etc/ddns/.datum.ddns", std::ios::out);
+			f.open("/etc/ddns/.date.ddns", std::ios::out);
 			f << Time( tt, "%Y%m%d0" );
 			f.close();
 			//Read actual time
-			f.open("/etc/ddns/.datum.ddns", std::fstream::in );
+			f.open("/etc/ddns/.date.ddns", std::fstream::in );
 			std::string date;
 			getline( f, date, '\0');
 			f.close();
 			//Check if DNS Zone already was updated at the same day
-			if (datum_old != datum) {
+			if (date_old != date) {
 				//If not set DNS Zone Version to 0
 				f.open("/etc/ddns/.date_old.ddns", std::ios::out);
 				f << Time( tt, "%Y%m%d0" );
@@ -193,7 +193,7 @@ int main(int argc, char** argv) {
 			f << version;
 			f.close();
 			//Check if there were 10 or more updates at the same day
-			if (zeit_int >= 10) {
+			if (version_int >= 10) {
 				//If yes generate date without 0 as placeholder at the end
 				std::time_t tt = time(0);
 				f.open("/etc/ddns/.10-date.ddns", std::ios::out);
@@ -239,7 +239,7 @@ int main(int argc, char** argv) {
 			f.close();
 			//Run post update commands
 			system(cmds);
-			std::cout << "DNS Zone " << zone_name <<  " was updated to Serial " << zeitstempel << " !" << std::endl;
+			std::cout << "DNS Zone " << zone_name <<  " was updated to Serial " << serial << " !" << std::endl;
 		}
 	}
 }

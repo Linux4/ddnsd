@@ -65,7 +65,7 @@ std::string shell_exec(std::string cmd) {
 int main(int argc, char** argv) {
 	if (argc > 1) {
 		if (std::string(argv[1]) == "-version" || std::string(argv[1]) == "--version") {
-			std::cout << "DDNSD v4.4.1 (15.12.2017)" << std::endl;
+			std::cout << "DDNSD v4.4.2 (15.12.2017)" << std::endl;
 			exit(0);
 		}
 	}
@@ -168,7 +168,7 @@ int main(int argc, char** argv) {
 			getline( f, date, '\0');
 			f.close();
 			//Check if DNS Zone already was updated at the same day
-			if (date_old != date) {
+			if (date_old.substr(0, 8) != date.substr(0, 8)) {
 				//If not set DNS Zone Version to 0
 				f.open("/etc/ddns/.date_old.ddns", std::ios::out);
 				f << Time( tt, "%Y%m%d0" );

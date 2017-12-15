@@ -65,6 +65,10 @@ int main(int argc, char** argv) {
 			std::string serial = std::string(argv[2]);
 			zeitstempel_write << serial;
 			zeitstempel_write.close();
+			std::string date = serial.substr(0, 8);
+			zeitstempel_write.open("/etc/ddns/.date_old.ddns", std::ios::out);
+			zeitstempel_write << date;
+			zeitstempel_write.close();
 			std::cout << "Set serial to " << serial << " ." << std::endl;
 			dont_showhelp = 1;
 		}
@@ -155,7 +159,7 @@ int main(int argc, char** argv) {
                         dont_showhelp = 1;
                 }
 		if (std::string(argv[1]) == "-v") {
-			std::cout << "DDNSD-Config v4.4.1 (15.12.2017)" << std::endl;
+			std::cout << "DDNSD-Config v4.4.2 (15.12.2017)" << std::endl;
 			dont_showhelp = 1;
 			}
 		else {

@@ -17,6 +17,10 @@ with most linux / unix based operating systems
 - make  
 - make install    
   
+## Update  
+- make  
+- make update  
+    
 ## Uninstall:  
 - make uninstall  
   

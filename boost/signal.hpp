@@ -1,4 +1,4 @@
- // Boost.Signals library
+// Boost.Signals library
 
 // Copyright Douglas Gregor 2001-2006. Use, modification and
 // distribution is subject to the Boost Software License, Version

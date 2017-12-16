@@ -113,6 +113,7 @@ int main(int argc, char** argv) {
 	if (config_created != "1") {
 		std::cout << "It looks like the service is started first time, creating configuration files..." << std::endl;
 		system("mkdir -p /etc/ddns && echo 1 >/etc/ddns/enabled && echo 60 >/etc/ddns/update_freq && echo Example.com >/etc/ddns/zone_name && echo /etc/bind/db.example.com >/etc/ddns/zone_path && echo 'service bind9 restart' >/etc/ddns/post_update_cmds");
+		system("curl --silent https://v4.ident.me >/etc/ddns/.oldip.ddns");
 		std::cout << "Config files created." << std::endl;
 		std::cout << "Use \"ddnsd-config\" for configuration:" << std::endl;
 		std::cout << "Help for DDNSD-Config: \"ddnsd-config -h\"" << std::endl;

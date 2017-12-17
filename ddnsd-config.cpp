@@ -12,7 +12,7 @@ int main(int argc, char** argv) {
 			std::cout << argv[0] << " -ge -- Shows if the service is enabled (1) or disabled (0)." << std::endl;
 			std::cout << argv[0] << " -se 1|0 -- Enables (1) or disables (0) the service." << std::endl; 
 			std::cout << argv[0] << " -gs -- Shows the DNS Zone Serial." << std::endl;
-			std::cout << argv[0] << " -ss Serial -- Sets the DNS Zone Serial (Format: JJJJMMTTVV)." << std::endl;
+			std::cout << argv[0] << " -ss Serial -- Sets the DNS Zone Serial (Format: YYYYMMDDVV)." << std::endl;
 			std::cout << argv[0] << " -gu -- Shows the IP-Adress update frequency." << std::endl;
 			std::cout << argv[0] << " -su Time -- Sets the IP-Adress update frequency (in seconds)." << std::endl;
 			std::cout << argv[0] << " -gzn -- Shows the DNS Zone Name." << std::endl;

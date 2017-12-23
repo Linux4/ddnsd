@@ -63,6 +63,15 @@ std::string shell_exec(std::string cmd) {
 }
 
 int main(int argc, char** argv) {
+	std::string version = "4.4.2";
+        std::string remote_version = shell_exec("curl --silent https://raw.githubusercontent.com/Schmorzel/ddnsd/master/.version");
+        boost::replace_all(remote_version, "\n", "");
+        boost::replace_all(remote_version, "\r", "");
+        if (remote_version != version) {
+                std::cout << "Update to version " << remote_version << " available!" << std::endl;
+                std::cout << "To update clone the following Git Repository: https://github.com/Schmorzel/ddnsd" << std::endl;
+        }
+
 	if (argc > 1) {
 		if (std::string(argv[1]) == "-version" || std::string(argv[1]) == "--version") {
 			std::cout << "DDNSD v4.4.2 (15.12.2017)" << std::endl;

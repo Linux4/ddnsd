@@ -12,7 +12,7 @@ install:
 	@echo -e "ddnsd: \033[0;31mIt looks like the service is started first time, creating configuration files...\033[0m"
 	@echo -e "ddnsd: \033[0;31mConfig files created.\033[0m"
 	@echo -e "ddnsd: \033[0;31mUse "ddnsd-config" for configuration:\033[0m"
-	@echo -e "ddnsd: \033[0;31mHelp for DDNSD-Config: "ddnsd-config -h\033[0m"
+	@echo -e "ddnsd: \033[0;31mHelp for DDNSD-Config: ddnsd-config -h\033[0m"
 	@echo -e "ddnsd: \033[0;31mStopping service, after configuration type "service ddnsd start" to start the service.\033[0m"
 
 update:

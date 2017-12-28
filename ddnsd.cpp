@@ -69,7 +69,7 @@ int main(int argc, char** argv) {
         boost::replace_all(remote_version, "\r", "");
         if (remote_version != version) {
 		if (remote_version.length() == 0) {
-			std::cout << "Could not check for updates!" std::endl;
+			std::cout << "Could not check for updates!" << std::endl;
 		}
 		else {
                 	std::cout << "Update to version " << remote_version << " available!" << std::endl;

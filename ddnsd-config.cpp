@@ -30,7 +30,7 @@ int main(int argc, char** argv) {
 			std::string enabled;
 			getline( enabled_read, enabled, '\0');
 			boost::replace_all(enabled, "\n", "");
-			std::cout << "Aktiviert (1)/Deaktiviert (0): " << enabled << std::endl;
+			std::cout << "Enabled (1)/Disabled (0): " << enabled << std::endl;
 			dont_showhelp = 1;
 		}
                 if (std::string(argv[1]) == "-se") {
@@ -43,7 +43,7 @@ int main(int argc, char** argv) {
                         std::string enabled = std::string(argv[2]);
                         enabled_write << enabled;
                         enabled_write.close();
-                        std::cout << "Set enabled/disabled to " << enabled << " ." << std::endl;
+                        std::cout << "Set enabled/disabled to " << enabled << "." << std::endl;
                         dont_showhelp = 1;
                 }
 		if (std::string(argv[1]) == "-gs") {
@@ -65,11 +65,11 @@ int main(int argc, char** argv) {
 			std::string serial = std::string(argv[2]);
 			zeitstempel_write << serial;
 			zeitstempel_write.close();
-			std::string date = serial.substr(0, 8);
+			std::string date = serial.substr(0, (serial.length() -2));
 			zeitstempel_write.open("/etc/ddns/.date_old.ddns", std::ios::out);
 			zeitstempel_write << date;
 			zeitstempel_write.close();
-			std::cout << "Set serial to " << serial << " ." << std::endl;
+			std::cout << "Set serial to " << serial << "." << std::endl;
 			dont_showhelp = 1;
 		}
 		if (std::string(argv[1]) == "-gu") {
@@ -91,7 +91,7 @@ int main(int argc, char** argv) {
                         std::string update_freq = std::string(argv[2]);
                         update_freq_write << update_freq;
                         update_freq_write.close();
-                        std::cout << "Set IP-Adress update frequency to " << update_freq << " ." << std::endl;
+                        std::cout << "Set IP-Adress update frequency to " << update_freq << "." << std::endl;
                         dont_showhelp = 1;
                 }
                 if (std::string(argv[1]) == "-gzn") {
@@ -113,7 +113,7 @@ int main(int argc, char** argv) {
                         std::string zone_name = std::string(argv[2]);
                         zone_name_write << zone_name;
                         zone_name_write.close();
-                        std::cout << "Set DNS Zone Name to " << zone_name << " ." << std::endl;
+                        std::cout << "Set DNS Zone Name to " << zone_name << "." << std::endl;
                         dont_showhelp = 1;
                 }
                 if (std::string(argv[1]) == "-gzp") {
@@ -135,7 +135,7 @@ int main(int argc, char** argv) {
                         std::string zone_path = std::string(argv[2]);
                         zone_path_write << zone_path;
                         zone_path_write.close();
-                        std::cout << "Set path to DNS Zone file to " << zone_path << " ." << std::endl;
+                        std::cout << "Set path to DNS Zone file to " << zone_path << "." << std::endl;
                         dont_showhelp = 1;
                 }
                 if (std::string(argv[1]) == "-gp") {
@@ -151,15 +151,15 @@ int main(int argc, char** argv) {
                         std::fstream post_update_cmds_write;
                         post_update_cmds_write.open("/etc/ddns/post_update_cmds", std::ios::out);
                         char post_update_cmds_char[1024];
-			std::cout << "Enter commands to execute after DNS Update separted by && (Befehl1 && Befehl2 && ..) (Maximum 1024 characters!) :" << std::endl;
+			std::cout << "Enter commands to execute after DNS Update separted by & (command1 & command2 & ..) (Maximum 1024 characters!) :" << std::endl;
 			std::cin.getline(post_update_cmds_char, sizeof(post_update_cmds_char));
                         post_update_cmds_write << std::string(post_update_cmds_char);
                         post_update_cmds_write.close();
-                        std::cout << "Set commands to execute after DNS Update to " << post_update_cmds_char << " ." << std::endl;
+                        std::cout << "Set commands to execute after DNS Update to " << post_update_cmds_char << "." << std::endl;
                         dont_showhelp = 1;
                 }
 		if (std::string(argv[1]) == "-v") {
-			std::cout << "DDNSD-Config v4.4.2 (15.12.2017)" << std::endl;
+			std::cout << "DDNSD-Config v4.4.3 (28.12.2017)" << std::endl;
 			dont_showhelp = 1;
 			}
 		else {

@@ -237,8 +237,8 @@ int main(int argc, char** argv) {
 			//Replace in DNS Zone: OLDIP with IP and serial_old with serial
 			std::string n = "\n";
 			boost::replace_all(IP, "\n", "");
+			boos::replace_all(IP, "\r", "");
 			boost::replace_all(OLDIP, "\n", "");
-			IP = IP+n;
 			boost::replace_all(dnszone, OLDIP, IP);
 			boost::replace_all(serial_old, "\n", "");
 			boost::replace_all(serial, "\n", "");

@@ -62,8 +62,28 @@ std::string shell_exec(std::string cmd) {
 	return result;
 }
 
+std::string read_config(std::string file_path, std::string config_key) {
+        std::fstream f;
+        std::string result;
+        std::string config_value;
+        f.open(file_path, std::fstream::in);
+        int length = config_key.length();
+        while(getline(f, config_value)) {
+                if(config_value.substr(0, length) == config_key) {
+                        boost::replace_all(config_value, config_key, "");
+                        result = config_value;
+                        break;
+                }
+        }
+        f.close();
+        return result;
+}
+
 int main(int argc, char** argv) {
-	std::string version = "4.4.3";
+	std::fstream f;
+	std::string version = "v4.5.0";
+	std::string release_date = "30.12.2017";
+	std::string config = "/etc/ddns/ddnsd.conf";
         std::string remote_version = shell_exec("curl --silent https://raw.githubusercontent.com/Schmorzel/ddnsd/master/.version");
         boost::replace_all(remote_version, "\n", "");
         boost::replace_all(remote_version, "\r", "");
@@ -79,62 +99,41 @@ int main(int argc, char** argv) {
 
 	if (argc > 1) {
 		if (std::string(argv[1]) == "-version" || std::string(argv[1]) == "--version") {
-			std::cout << "DDNSD v4.4.3 (28.12.2017)" << std::endl;
+			std::cout << "DDNSD " << version << " " << release_date << std::endl;
 			exit(0);
 		}
 	}
 	//Read config
-	std::fstream f;
-	f.open("/etc/ddns/enabled", std::fstream::in );
 	std::string enabled;
-	getline( f, enabled, '\0');
-	f.close();
-	boost::replace_all(enabled, "\n", "");
+	enabled = read_config(config, "enabled = ");
 	if (enabled == "0") {
 		std::cout << "/etc/ddns/enabled is set to 0... Stopping service..." << std::endl;
 		exit(0);
 	}
-	f.open("/etc/ddns/update_freq", std::fstream::in );
 	std::string update_freq_string;
-	getline( f, update_freq_string, '\0');
-	f.close();
-	boost::replace_all(update_freq_string, "\n", "");
-	f.open("/etc/ddns/zone_name", std::fstream::in );
+	update_freq_string = read_config(config, "update_freq = ");
 	std::string zone_name;
-	getline( f, zone_name, '\0');
-	f.close();
-	boost::replace_all(zone_name, "\n", "");
-	f.open("/etc/ddns/zone_path", std::fstream::in );
+	zone_name = read_config(config, "zone_name = ");
 	std::string zone_path;
-	getline( f, zone_path, '\0');
-	f.close();
-	boost::replace_all(zone_path, "\n", "");
-	f.open("/etc/ddns/post_update_cmds");
+	zone_path = read_config(config, "zone_path = ");
 	std::string cmds_string;
-	getline ( f, cmds_string, '\0');
-	f.close();
+	cmds_string = read_config(config, "post_update_cmds = ");
 	char cmds[1024];
 	strncpy(cmds, cmds_string.c_str(), sizeof(cmds));
-	f.open("/etc/ddns/.config_created.ddns", std::fstream::in );
-	std::string config_created;
-	getline( f, config_created, '\0');
-	f.close();
+	std::string config_version;
+	config_version = read_config(config, "config_version = ");
 	f.open("/run/ddnsd.pid", std::ios::out );
 	f << getpid();
 	f << "\n";
 	f.close();
 	//Check if config exists, if not create config files
-	if (config_created != "1") {
+	if (config_version.length() == 0) {
 		std::cout << "It looks like the service is started first time, creating configuration files..." << std::endl;
-		system("mkdir -p /etc/ddns & echo 1 >/etc/ddns/enabled & echo 60 >/etc/ddns/update_freq & echo Example.com >/etc/ddns/zone_name & echo /etc/bind/db.example.com >/etc/ddns/zone_path & echo 'service bind9 restart' >/etc/ddns/post_update_cmds");
+		system("mkdir -p /etc/ddns & echo \"#DDNSD Configuration\n\n#Enable (1)/Disable (0) the service:\nenabled = 1\n\n#IP-Adress update frequency:\nupdate_freq = 60\n\n#DNS Zone name (only used in zone updated message):\nzone_name = Example.com\n\n#Path to DNS zone file:\nzone_path = /etc/bind/db.example.com\n\n#Commands that will be executed after DNS zone update (seperated by &):\npost_update_cmds = service bind9 restart & custom_cmd & custom_cmd2\n\n#Do not touch:\nconfig_version = 1\n\" >/etc/ddns/ddnsd.conf");
 		system("curl --silent https://v4.ident.me >/etc/ddns/.oldip.ddns");
-		std::cout << "Config files created." << std::endl;
-		std::cout << "Use \"ddnsd-config\" for configuration:" << std::endl;
-		std::cout << "Help for DDNSD-Config: \"ddnsd-config -h\"" << std::endl;
+		std::cout << "Config file created." << std::endl;
+		std::cout << "Please edit /etc/ddns/ddnsd.conf" << std::endl;;
 		std::cout << "Stopping service, after configuration type \"service ddnsd start\" to start the service." << std::endl;
-		f.open("/etc/ddns/.config_created.ddns", std::ios::out );
-		f << "1";
-		f.close();
 		exit(1);
 	}
 	//Check if given DNS Zone file exists

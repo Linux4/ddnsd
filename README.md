@@ -25,6 +25,6 @@ with most linux / unix based operating systems
 - make uninstall  
   
 ## Usage:  
-Install the service as shown above and then use ddnsd-config  
-to configure the service.  
+Install the service as shown above and then edit  
+/etc/ddns/ddnsd.conf to configure the service.  
 Note: On first run you have to set the DNS Zone Serial.   

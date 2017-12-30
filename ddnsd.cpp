@@ -106,7 +106,7 @@ int main(int argc, char** argv) {
 	std::string enabled;
 	enabled = read_config(config, "enabled = ");
 	if (enabled == "0") {
-		std::cout << "/etc/ddns/enabled is set to 0... Stopping service..." << std::endl;
+		std::cout << "/etc/ddns/ddnsd.conf: enabled is set to 0... Stopping service..." << std::endl;
 		exit(0);
 	}
 	std::string update_freq_string;

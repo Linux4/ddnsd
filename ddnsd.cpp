@@ -22,8 +22,7 @@ bool is_ipv4_address(const std::string& str) {
 	return inet_pton(AF_INET, str.c_str(), &(sa.sin_addr))!=0;
 }
 
-struct Time
-{
+struct Time {
 	Time( std::time_t tm, const std::string format )
 	: m_tm( tm ), m_format( format )
 	{}

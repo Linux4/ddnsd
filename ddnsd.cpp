@@ -166,6 +166,16 @@ int main(int argc, char** argv) {
 			IP = OLDIP;
 		}
 		if (IP != OLDIP) {
+			//Get actual serial + zone version
+			f.open("/etc/ddns/.serial_old.ddns", std::ios::out);
+                        std::string serial_dig = shell_exec("dig +short @localhost "+zone_name+" | awk '{print $3}'");
+			boost::replace_all(serial_dig, "\n", "");
+                        f << serial_dig;
+                        f.close();
+                        std::string date_dig = serial_dig.substr(0, (serial_dig.length() -2));
+                        f.open("/etc/ddns/.date_old.ddns", std::ios::out);
+                        f << date_dig;
+                        f.close();
 			//Get last DNS Update
 			f.open("/etc/ddns/.serial_old.ddns", std::fstream::in );
 			std::string date_old;

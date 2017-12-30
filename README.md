@@ -11,7 +11,9 @@ with most linux / unix based operating systems
 - g++  
 - make  
 - curl
-- dns server software like bind9
+- dns server software like bind9 installed on localhost  
+  and allowing requests from localhost
+- dnsutils
 
 ## Installation:  
 - make  
@@ -27,6 +29,3 @@ with most linux / unix based operating systems
 ## Usage:  
 Install the service as shown above and then edit  
 /etc/ddns/ddnsd.conf to configure the service.  
-Note: On first run you have to set the DNS Zone Serial
-using the command ddnsd-serial. Help for ddnsd-serial:
-"ddnsd-serial -h".   

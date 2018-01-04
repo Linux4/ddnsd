@@ -2,6 +2,7 @@ default:
 	g++ ddnsd.cpp -I./ -o ddnsd
 
 install:
+	@mkdir -p /etc/ddns/
 	@cp ./ddnsd /usr/bin/
 	@echo "[Unit]\nDescription=DDNS Daemon\n\n[Service]\nExecStart=/usr/bin/ddnsd\nPIDFile=/run/ddnsd.pid\n\n[Install]\nWantedBy=multi-user.target\n" > /lib/systemd/system/ddnsd.service
 	systemctl enable ddnsd.service

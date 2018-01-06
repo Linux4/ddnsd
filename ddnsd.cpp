@@ -80,8 +80,8 @@ std::string read_config(std::string file_path, std::string config_key) {
 
 int main(int argc, char** argv) {
 	std::fstream f;
-	std::string version = "v4.5.0";
-	std::string release_date = "30.12.2017";
+	std::string version = "v4.5.1";
+	std::string release_date = "06.01.2018";
 	std::string config = "/etc/ddns/ddnsd.conf";
         std::string remote_version = shell_exec("curl --silent https://raw.githubusercontent.com/Schmorzel/ddnsd/master/.version");
         boost::replace_all(remote_version, "\n", "");
@@ -167,16 +167,26 @@ int main(int argc, char** argv) {
 		if (IP != OLDIP) {
 			//Get actual serial + zone version
 			f.open("/etc/ddns/.serial_old.ddns", std::ios::out);
-                        std::string serial_dig = shell_exec("dig +short @localhost "+zone_name+" | awk '{print $3}'");
+                        std::string serial_dig = shell_exec("dig +short @localhost "+zone_name+" SOA | awk '{print $3}'");
 			boost::replace_all(serial_dig, "\n", "");
+			boost::replace_all(serial_dig, "\r", "");
                         f << serial_dig;
                         f.close();
-                        std::string date_dig = serial_dig.substr(0, (serial_dig.length() -2));
+                        std::string date_dig = serial_dig.substr(0, serial_dig.length() - 2);
+			date_dig = date_dig + "0";
                         f.open("/etc/ddns/.date_old.ddns", std::ios::out);
                         f << date_dig;
                         f.close();
+			std::string version_dig = serial_dig;
+			boost::replace_all(version_dig, date_dig, "");
+			if(version_dig.substr(0, 1) == "0") {
+				boost::replace_all(version_dig, "0", "");
+			}
+			f.open("/etc/ddns/.version.ddns", std::ios::out);
+			f << version_dig;
+			f.close();
 			//Get last DNS Update
-			f.open("/etc/ddns/.serial_old.ddns", std::fstream::in );
+			f.open("/etc/ddns/.date_old.ddns", std::fstream::in );
 			std::string date_old;
 			getline( f, date_old, '\0');
 			f.close();
@@ -191,7 +201,7 @@ int main(int argc, char** argv) {
 			getline( f, date, '\0');
 			f.close();
 			//Check if DNS Zone already was updated at the same day
-			if (date_old.substr(0, (date_old.length() - 2)) != date.substr(0, (date.length() - 2))) {
+			if (date_old != date) {
 				//If not set DNS Zone Version to 0
 				f.open("/etc/ddns/.date_old.ddns", std::ios::out);
 				f << Time( tt, "%Y%m%d0" );

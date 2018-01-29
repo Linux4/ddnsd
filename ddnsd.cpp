@@ -240,7 +240,7 @@ int main(int argc, char** argv) {
 				f.close();
 			}
 			//Add Version to date to create DNS Zone Serial
-			std::string serial = date.substr(0, (date.length()-1)) + version;
+			std::string serial = date + version;
 			//Read actual DNS Zone Serial
 			f.open("/etc/ddns/.serial_old.ddns", std::fstream::in );
 			std::string serial_old;

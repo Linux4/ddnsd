@@ -80,8 +80,8 @@ std::string read_config(std::string file_path, std::string config_key) {
 
 int main(int argc, char** argv) {
 	std::fstream f;
-	std::string version = "v4.5.2";
-	std::string release_date = "17.01.2018";
+	std::string version = "v4.5.3";
+	std::string release_date = "29.01.2018";
 	std::string config = "/etc/ddns/ddnsd.conf";
 	std::string update_checker = read_config(config, "update_checker = ");
 	if (update_checker == "true") {
@@ -240,7 +240,7 @@ int main(int argc, char** argv) {
 				f.close();
 			}
 			//Add Version to date to create DNS Zone Serial
-			std::string serial = date+version;
+			std::string serial = date.substr(0, (date.length()-1)) + version;
 			//Read actual DNS Zone Serial
 			f.open("/etc/ddns/.serial_old.ddns", std::fstream::in );
 			std::string serial_old;

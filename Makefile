@@ -4,7 +4,7 @@ default:
 install:
 	@mkdir -p /etc/ddns/
 	@cp ./ddnsd /usr/bin/
-	@echo "[Unit]\nDescription=DDNS Daemon\n\n[Service]\nExecStart=/usr/bin/ddnsd\nPIDFile=/run/ddnsd.pid\n\n[Install]\nWantedBy=multi-user.target\n" > /lib/systemd/system/ddnsd.service
+	@echo "[Unit]\nDescription=DDNS Daemon\nAfter=network.target\n\n[Service]\nExecStart=/usr/bin/ddnsd\nPIDFile=/run/ddnsd.pid\n\n[Install]\nWantedBy=multi-user.target\n" > /lib/systemd/system/ddnsd.service
 	systemctl enable ddnsd.service
 	@echo "Installation successfully completed!"
 	@service ddnsd start

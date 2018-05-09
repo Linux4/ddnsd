@@ -1,5 +1,5 @@
 # ddnsd  
-Copyright (c) Tim Zimmermann <tizimmermann01@gmail.com>  
+Author: Tim Zimmermann <tim.zimmermann@server24-7.eu>  
   
 ## Description:   
 Ddnsd is a background service to dynamically update  

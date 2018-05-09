@@ -205,7 +205,7 @@ void updateip(std::string zone_path, std::string OLDIP, std::string IP) {
 
 int main(int argc, char** argv) {
 	std::fstream f;
-	std::string version = "v4.99.99-prerelease2";
+	std::string version = "v5.0-RC1";
 	std::string release_date = "09.05.2018";
 	std::string config = "/etc/ddns/ddnsd.conf";
 	std::string update_checker = read_config(config, "update_checker = ");
@@ -295,9 +295,16 @@ int main(int argc, char** argv) {
 			//Set IP to OLDIP to skip updating DNS Zone
 			IP = OLDIP;
 		}
-		if (IP != OLDIP) {
-			for(std::string tmpStr : zone_path) {
-				updateip(tmpStr, OLDIP, IP);
+		if (IP != OLDIP || IP6 != OLDIP) {
+			if(IP != OLDIP) {
+				for(std::string tmpStr : zone_path) {
+					updateip(tmpStr, OLDIP, IP);
+				}
+			}
+			if(IP6 != OLDIP6) {
+				for(std::string tmpStr : zone_path) {
+					updateip(tmpStr, OLDIP6, IP6);
+				}
 			}
 			system(cmds);
 		}

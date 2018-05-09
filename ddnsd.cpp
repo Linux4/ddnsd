@@ -16,6 +16,8 @@
 #include <cstdio>
 #include <memory>
 #include <stdexcept>
+#include <boost/algorithm/string.hpp>
+#include <vector>
 
 bool is_ipv4_address(const std::string& str) {
 	struct sockaddr_in sa;
@@ -31,8 +33,7 @@ struct Time {
 	Time( std::time_t tm, const std::string format )
 	: m_tm( tm ), m_format( format )
 	{}
-	friend std::ostream& operator<<( std::ostream& out, const Time& t )
-	{
+	friend std::ostream& operator<<( std::ostream& out, const Time& t ) {
 		typedef std::ostreambuf_iterator< char > out_type;
 		typedef std::time_put< char, out_type > time_put_facet_type;
 		const time_put_facet_type& fac = std::use_facet< time_put_facet_type >( out.getloc() );
@@ -40,9 +41,9 @@ struct Time {
 		fac.put( out_type( out ), out, out.fill(), std::localtime( &t.m_tm ), pattern, pattern + t.m_format.size() );
 		return out;
 	}
-private:
-	std::time_t m_tm;
-	std::string m_format;
+	private:
+		std::time_t m_tm;
+		std::string m_format;
 };
 
 inline bool file_exists(const std::string& name) {
@@ -83,6 +84,125 @@ std::string read_config(std::string file_path, std::string config_key) {
         return result;
 }
 
+void updateip(std::string zone_path, std::string OLDIP, std::string IP) {
+	//Check if given DNS Zone file exists
+	if(!(file_exists(zone_path))) {
+                std::cerr << "ERROR: The given DNS Zone file (" << zone_path << ") does not exist!" << std::endl;
+                return;
+        }
+	std::fstream f;
+	std::string zone_name = zone_path;
+	boost::replace_all(zone_name, "/etc/bind/db.", "");
+	//Get actual serial + zone version
+	f.open("/etc/ddns/.serial_old.ddns", std::ios::out);
+	std::string serial_dig = shell_exec("dig +short @localhost "+zone_name+" SOA | awk '{print $3}'");
+	boost::replace_all(serial_dig, "\n", "");
+	boost::replace_all(serial_dig, "\r", "");
+        f << serial_dig;
+        f.close();
+        std::string date_dig = serial_dig.substr(0, serial_dig.length() - 2);
+	date_dig = date_dig + "0";
+        f.open("/etc/ddns/.date_old.ddns", std::ios::out);
+        f << date_dig;
+        f.close();
+	std::string version_dig = serial_dig;
+	boost::replace_all(version_dig, date_dig, "");
+	if(version_dig.substr(0, 1) == "0") {
+		boost::replace_all(version_dig, "0", "");
+	}
+	f.open("/etc/ddns/.version.ddns", std::ios::out);
+	f << version_dig;
+	f.close();
+	//Get last DNS Update
+	f.open("/etc/ddns/.date_old.ddns", std::fstream::in );
+	std::string date_old;
+	getline( f, date_old, '\0');
+	f.close();
+	//Write actual time
+	std::time_t tt = time(0);
+	f.open("/etc/ddns/.date.ddns", std::ios::out);
+	f << Time( tt, "%Y%m%d0" );
+	f.close();
+	//Read actual time
+	f.open("/etc/ddns/.date.ddns", std::fstream::in );
+	std::string date;
+	getline( f, date, '\0');
+	f.close();
+	//Check if DNS Zone already was updated at the same day
+	if (date_old != date) {
+		//If not set DNS Zone Version to 0
+		f.open("/etc/ddns/.date_old.ddns", std::ios::out);
+		f << Time( tt, "%Y%m%d0" );
+		f.close();
+		int zeit = 0;
+		f.open("/etc/ddns/.version.ddns", std::ios::out);
+		f << zeit;
+		f.close();
+   	}
+	//Read DNS Zone Version
+	f.open("/etc/ddns/.version.ddns", std::fstream::in );
+	std::string version_str;
+	getline( f, version_str, '\0');
+	f.close();
+	//Convert DNS Zone Version to Integer, add 1 and convert it back to string
+	int version_int = atoi(version_str.c_str());
+	version_int = version_int + 1;
+	std::stringstream versionss;
+	versionss << version_int;
+	std::string version = versionss.str();
+	f.open("/etc/ddns/.version.ddns", std::ios::out);
+	f << version;
+	f.close();
+	//Check if there were 10 or more updates at the same day
+	if (version_int >= 10) {
+		//If yes generate date without 0 as placeholder at the end
+		std::time_t tt = time(0);
+		f.open("/etc/ddns/.10-date.ddns", std::ios::out);
+		f << Time( tt, "%Y%m%d" );
+		f.close();
+		f.open("/etc/ddns/.10-date.ddns", std::fstream::in );
+		std::string date;
+		getline( f, date, '\0');
+		f.close();
+	}
+	//Add Version to date to create DNS Zone Serial
+	std::string serial = date + version;
+	//Read actual DNS Zone Serial
+	f.open("/etc/ddns/.serial_old.ddns", std::fstream::in );
+	std::string serial_old;
+	getline( f, serial_old, '\0');
+	f.close();
+	//Write new Serial to file
+	f.open("/etc/ddns/.serial_old.ddns", std::ios::out);
+	f << serial;
+	f.close();
+	//Write new IP to file
+	f.open("/etc/ddns/.oldip.ddns", std::ios::out);
+	f << IP;
+	f.close();
+	//Read DNS Zone file
+	f.open(zone_path, std::fstream::in );
+	std::string dnszone;
+	getline( f, dnszone, '\0');
+	f.close();
+	//Replace in DNS Zone: OLDIP with IP and serial_old with serial
+	std::string n = "\n";
+	boost::replace_all(IP, "\n", "");
+	boost::replace_all(IP, "\r", "");
+	boost::replace_all(OLDIP, "\n", "");
+	boost::replace_all(dnszone, OLDIP, IP);
+	boost::replace_all(serial_old, "\n", "");
+	boost::replace_all(serial, "\n", "");
+	boost::replace_all(dnszone, serial_old, serial);
+	//Write DNS Zone to file
+	f.open(zone_path, std::ios::out);
+	f << dnszone;
+	f.close();
+	//Run post update commands
+	//system(cmds);
+	std::cout << "DNS Zone " << zone_name <<  " was updated to Serial " << serial << " !" << std::endl;
+}
+
 int main(int argc, char** argv) {
 	std::fstream f;
 	std::string version = "v4.99.99-prerelease1";
@@ -118,10 +238,13 @@ int main(int argc, char** argv) {
 	}
 	std::string update_freq_string;
 	update_freq_string = read_config(config, "update_freq = ");
-	std::string zone_name;
-	zone_name = read_config(config, "zone_name = ");
-	std::string zone_path;
-	zone_path = read_config(config, "zone_path = ");
+	std::string zone_path_string;
+	zone_path_string = read_config(config, "zone_path = ");
+	std::vector<std::string> zone_path;
+	boost::split(zone_path, zone_path_string, boost::is_any_of(","));
+	std::string zone_name_string = read_config(config, "zone_name = ");
+	std::vector<std::string> zone_name;
+	boost::split(zone_name, zone_name_string, boost::is_any_of(","));
 	std::string cmds_string;
 	cmds_string = read_config(config, "post_update_cmds = ");
 	char cmds[sizeof(cmds_string)];
@@ -135,18 +258,14 @@ int main(int argc, char** argv) {
 	//Check if config exists, if not create config files
 	if (config_version.length() == 0) {
 		std::cout << "It looks like the service is started first time, creating configuration files..." << std::endl;
-		system("mkdir -p /etc/ddns & echo \"#DDNSD Configuration\n\n#Enable (true)/Disable (false) the service:\nenabled = true\n\n#IP-Adress update frequency:\nupdate_freq = 60\n\n#DNS Zone name (used for getting zone serial and update message):\nzone_name = Example.com\n\n#Path to DNS zone file:\nzone_path = /etc/bind/db.example.com\n\n#Commands that will be executed after DNS zone update (seperated by &):\npost_update_cmds = service bind9 restart & custom_cmd & custom_cmd2\n\n#Enable (true)/Disable (false) the Update Checker:\nupdate_checker = true\n\n#Do not touch:\nconfig_version = 1\n\" >/etc/ddns/ddnsd.conf");
+		system("mkdir -p /etc/ddns & echo \"#DDNSD Configuration\n\n#Enable (true)/Disable (false) the service:\nenabled = true\n\n#IP-Adress update frequency:\nupdate_freq = 60\n\n#Path to DNS zone files seperated by comma:\nzone_path = /etc/bind/db.example.com,/etc/bind/db.example2.com\n#Please use paths like /etc/bind/db.yourdomain.com\n\n#Commands that will be executed after DNS zone update (seperated by &):\npost_update_cmds = service bind9 restart & custom_cmd & custom_cmd2\n\n#Enable (true)/Disable (false) the Update Checker:\nupdate_checker = true\n\n#Do not touch:\nconfig_version = 1\n\" >/etc/ddns/ddnsd.conf");
 		system("curl --silent https://v4.ident.me >/etc/ddns/.oldip.ddns");
+		system("curl --silent https://v6.ident.me >/etc/ddns/.oldip6.ddns");
 		std::cout << "Config file created." << std::endl;
 		std::cout << "Please edit /etc/ddns/ddnsd.conf" << std::endl;;
 		std::cout << "Stopping service, after configuration type \"service ddnsd start\" to start the service." << std::endl;
 		exit(1);
 	}
-	//Check if given DNS Zone file exists
-	if(!(file_exists(zone_path))) {
-                std::cerr << "ERROR: The given DNS Zone file (" << zone_path << ") does not exist!" << std::endl;
-                exit(1);
-        }
         int update_freq = atoi(update_freq_string.c_str());
 	//Check if update frequency is a number and greater 0
         if(update_freq == 0) {
@@ -162,8 +281,13 @@ int main(int argc, char** argv) {
 		std::string OLDIP;
 		getline( f, OLDIP, '\0');
 		f.close();
+		f.open("/etc/ddns/.oldip6.ddns", std::fstream::in);
+		std::string OLDIP6;
+		getline(f, OLDIP6, '\0');
+		f.close();
 		//Get actual IP-Adress
 		std::string IP = shell_exec("curl --silent https://v4.ident.me/");
+		std::string IP6 = shell_exec("curl --silent https://v6.ident.me/");
 		//Check if IP is a valid IP-Adress
 		//e.g if no internet connection is available
 		if (!is_ipv4_address(IP)) {
@@ -172,114 +296,10 @@ int main(int argc, char** argv) {
 			IP = OLDIP;
 		}
 		if (IP != OLDIP) {
-			//Get actual serial + zone version
-			f.open("/etc/ddns/.serial_old.ddns", std::ios::out);
-                        std::string serial_dig = shell_exec("dig +short @localhost "+zone_name+" SOA | awk '{print $3}'");
-			boost::replace_all(serial_dig, "\n", "");
-			boost::replace_all(serial_dig, "\r", "");
-                        f << serial_dig;
-                        f.close();
-                        std::string date_dig = serial_dig.substr(0, serial_dig.length() - 2);
-			date_dig = date_dig + "0";
-                        f.open("/etc/ddns/.date_old.ddns", std::ios::out);
-                        f << date_dig;
-                        f.close();
-			std::string version_dig = serial_dig;
-			boost::replace_all(version_dig, date_dig, "");
-			if(version_dig.substr(0, 1) == "0") {
-				boost::replace_all(version_dig, "0", "");
+			for(std::string tmpStr : zone_path) {
+				updateip(tmpStr, OLDIP, IP);
 			}
-			f.open("/etc/ddns/.version.ddns", std::ios::out);
-			f << version_dig;
-			f.close();
-			//Get last DNS Update
-			f.open("/etc/ddns/.date_old.ddns", std::fstream::in );
-			std::string date_old;
-			getline( f, date_old, '\0');
-			f.close();
-			//Write actual time
-			std::time_t tt = time(0);
-			f.open("/etc/ddns/.date.ddns", std::ios::out);
-			f << Time( tt, "%Y%m%d0" );
-			f.close();
-			//Read actual time
-			f.open("/etc/ddns/.date.ddns", std::fstream::in );
-			std::string date;
-			getline( f, date, '\0');
-			f.close();
-			//Check if DNS Zone already was updated at the same day
-			if (date_old != date) {
-				//If not set DNS Zone Version to 0
-				f.open("/etc/ddns/.date_old.ddns", std::ios::out);
-				f << Time( tt, "%Y%m%d0" );
-				f.close();
-				int zeit = 0;
-				f.open("/etc/ddns/.version.ddns", std::ios::out);
-				f << zeit;
-				f.close();
-   			}
-			//Read DNS Zone Version
-			f.open("/etc/ddns/.version.ddns", std::fstream::in );
-			std::string version_str;
-			getline( f, version_str, '\0');
-			f.close();
-			//Convert DNS Zone Version to Integer, add 1 and convert it back to string
-			int version_int = atoi(version_str.c_str());
-			version_int = version_int + 1;
-			std::stringstream versionss;
-			versionss << version_int;
-			std::string version = versionss.str();
-			f.open("/etc/ddns/.version.ddns", std::ios::out);
-			f << version;
-			f.close();
-			//Check if there were 10 or more updates at the same day
-			if (version_int >= 10) {
-				//If yes generate date without 0 as placeholder at the end
-				std::time_t tt = time(0);
-				f.open("/etc/ddns/.10-date.ddns", std::ios::out);
-				f << Time( tt, "%Y%m%d" );
-				f.close();
-				f.open("/etc/ddns/.10-date.ddns", std::fstream::in );
-				std::string date;
-				getline( f, date, '\0');
-				f.close();
-			}
-			//Add Version to date to create DNS Zone Serial
-			std::string serial = date + version;
-			//Read actual DNS Zone Serial
-			f.open("/etc/ddns/.serial_old.ddns", std::fstream::in );
-			std::string serial_old;
-			getline( f, serial_old, '\0');
-			f.close();
-			//Write new Serial to file
-			f.open("/etc/ddns/.serial_old.ddns", std::ios::out);
-			f << serial;
-			f.close();
-			//Write new IP to file
-			f.open("/etc/ddns/.oldip.ddns", std::ios::out);
-			f << IP;
-			f.close();
-			//Read DNS Zone file
-			f.open(zone_path, std::fstream::in );
-			std::string dnszone;
-			getline( f, dnszone, '\0');
-			f.close();
-			//Replace in DNS Zone: OLDIP with IP and serial_old with serial
-			std::string n = "\n";
-			boost::replace_all(IP, "\n", "");
-			boost::replace_all(IP, "\r", "");
-			boost::replace_all(OLDIP, "\n", "");
-			boost::replace_all(dnszone, OLDIP, IP);
-			boost::replace_all(serial_old, "\n", "");
-			boost::replace_all(serial, "\n", "");
-			boost::replace_all(dnszone, serial_old, serial);
-			//Write DNS Zone to file
-			f.open(zone_path, std::ios::out);
-			f << dnszone;
-			f.close();
-			//Run post update commands
 			system(cmds);
-			std::cout << "DNS Zone " << zone_name <<  " was updated to Serial " << serial << " !" << std::endl;
 		}
 	}
 }

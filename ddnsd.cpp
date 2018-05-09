@@ -205,7 +205,7 @@ void updateip(std::string zone_path, std::string OLDIP, std::string IP) {
 
 int main(int argc, char** argv) {
 	std::fstream f;
-	std::string version = "v4.99.99-prerelease1";
+	std::string version = "v4.99.99-prerelease2";
 	std::string release_date = "09.05.2018";
 	std::string config = "/etc/ddns/ddnsd.conf";
 	std::string update_checker = read_config(config, "update_checker = ");

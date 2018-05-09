@@ -19,7 +19,12 @@
 
 bool is_ipv4_address(const std::string& str) {
 	struct sockaddr_in sa;
-	return inet_pton(AF_INET, str.c_str(), &(sa.sin_addr))!=0;
+	return inet_pton(AF_INET, str.c_str(), &(sa.sin_addr)) != 0;
+}
+
+bool is_ipv6_address(const std::string& str) {
+	struct sockaddr_in6 sa;
+	return inet_pton(AF_INET6, str.c_str(), &(sa.sin6_addr)) != 0;
 }
 
 struct Time {
@@ -80,8 +85,8 @@ std::string read_config(std::string file_path, std::string config_key) {
 
 int main(int argc, char** argv) {
 	std::fstream f;
-	std::string version = "v4.5.3";
-	std::string release_date = "29.01.2018";
+	std::string version = "v4.99.99-prerelease1";
+	std::string release_date = "09.05.2018";
 	std::string config = "/etc/ddns/ddnsd.conf";
 	std::string update_checker = read_config(config, "update_checker = ");
 	if (update_checker == "true") {
@@ -119,7 +124,7 @@ int main(int argc, char** argv) {
 	zone_path = read_config(config, "zone_path = ");
 	std::string cmds_string;
 	cmds_string = read_config(config, "post_update_cmds = ");
-	char cmds[1024];
+	char cmds[sizeof(cmds_string)];
 	strncpy(cmds, cmds_string.c_str(), sizeof(cmds));
 	std::string config_version;
 	config_version = read_config(config, "config_version = ");

@@ -8,6 +8,7 @@ with most linux / unix based operating systems
   
 ## Requirements:    
 - Linux / Unix based operating system  
+- Systemd
 - g++  
 - make  
 - curl
@@ -16,14 +17,17 @@ with most linux / unix based operating systems
 - dnsutils
 
 ## Installation:  
+- Please run the installer as root
 - make  
 - make install    
   
 ## Update  
+- Please run the updater as root
 - make  
 - make update  
     
 ## Uninstall:  
+- Please run the uninstaller as root
 - make uninstall  
   
 ## Usage:  

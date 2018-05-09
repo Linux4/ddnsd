@@ -84,7 +84,7 @@ std::string read_config(std::string file_path, std::string config_key) {
         return result;
 }
 
-void updateip(std::string zone_path, std::string OLDIP, std::string IP) {
+void updateip(std::string zone_path, std::string OLDIP, std::string IP, bool ipv6) {
 	//Check if given DNS Zone file exists
 	if(!(file_exists(zone_path))) {
                 std::cerr << "ERROR: The given DNS Zone file (" << zone_path << ") does not exist!" << std::endl;
@@ -177,7 +177,11 @@ void updateip(std::string zone_path, std::string OLDIP, std::string IP) {
 	f << serial;
 	f.close();
 	//Write new IP to file
-	f.open("/etc/ddns/.oldip.ddns", std::ios::out);
+	if(!ipv6) {
+		f.open("/etc/ddns/.oldip.ddns", std::ios::out);
+	} else {
+		f.open("/etc/ddns/.oldip6.ddns", std::ios::out);
+	}
 	f << IP;
 	f.close();
 	//Read DNS Zone file
@@ -205,7 +209,7 @@ void updateip(std::string zone_path, std::string OLDIP, std::string IP) {
 
 int main(int argc, char** argv) {
 	std::fstream f;
-	std::string version = "v5.0-RC1";
+	std::string version = "v5.0-RC2";
 	std::string release_date = "09.05.2018";
 	std::string config = "/etc/ddns/ddnsd.conf";
 	std::string update_checker = read_config(config, "update_checker = ");
@@ -298,12 +302,12 @@ int main(int argc, char** argv) {
 		if (IP != OLDIP || IP6 != OLDIP) {
 			if(IP != OLDIP) {
 				for(std::string tmpStr : zone_path) {
-					updateip(tmpStr, OLDIP, IP);
+					updateip(tmpStr, OLDIP, IP, false);
 				}
 			}
 			if(IP6 != OLDIP6) {
 				for(std::string tmpStr : zone_path) {
-					updateip(tmpStr, OLDIP6, IP6);
+					updateip(tmpStr, OLDIP6, IP6, true);
 				}
 			}
 			system(cmds);

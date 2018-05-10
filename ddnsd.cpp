@@ -294,12 +294,19 @@ int main(int argc, char** argv) {
 		std::string IP6 = shell_exec("curl --silent https://v6.ident.me/");
 		//Check if IP is a valid IP-Adress
 		//e.g if no internet connection is available
+		bool ipv4 = true;
 		if (!is_ipv4_address(IP)) {
-			std::cerr << "ERROR: Failed to get valid IPv4-Adress" << std::endl;
+			std::cerr << "ERROR: Failed to get valid IPv4-Address" << std::endl;
 			//Set IP to OLDIP to skip updating DNS Zone
 			IP = OLDIP;
+			ipv4 = false;
+		} if(!is_ipv6_address(IP6)) {
+			IP6 = OLDIP6;
+			if(!ipv4) {
+				std::cerr << "ERROR: Failed to get valid IPv6 Address" << std::endl;
+			}
 		}
-		if (IP != OLDIP || IP6 != OLDIP) {
+		if (IP != OLDIP || IP6 != OLDIP6) {
 			if(IP != OLDIP) {
 				for(std::string tmpStr : zone_path) {
 					updateip(tmpStr, OLDIP, IP, false);

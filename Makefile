@@ -11,7 +11,7 @@ install:
 	@echo "ddnsd: \033[0;31mIt looks like the service is started first time, creating configuration files...\033[0m"
 	@echo "ddnsd: \033[0;31mConfig file created.\033[0m"
 	@echo "ddnsd: \033[0;31mPlease edit /etc/ddns/ddnsd.conf.\033[0m"
-	@echo "ddnsd: \033[0;31mStopping service, after configuration type "service ddnsd start" to start the service.\033[0m"
+	@echo "ddnsd: \033[0;31mStopping service, after configuration type \"service ddnsd start\" to start the service.\033[0m"
 
 update:
 	@service ddnsd stop

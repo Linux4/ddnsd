@@ -20,6 +20,9 @@ with most linux / unix based operating systems
 - Please run the installer as root
 - make  
 - make install    
+OR
+- Follow the instructions at https://deb.server24-7.eu/add-repo.txt to use the APT Repository
+- execute apt-get install ddnsd
   
 ## Update  
 - Please run the updater as root

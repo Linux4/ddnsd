@@ -15,6 +15,7 @@ with most linux / unix based operating systems
 - dns server software like bind9 installed on localhost  
   and allowing requests from localhost
 - dnsutils
+- gawk
 
 ## Installation:  
 - Please run the installer as root

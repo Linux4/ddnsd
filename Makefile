@@ -12,6 +12,8 @@ install:
 	@echo "ddnsd: \033[0;31mConfig file created.\033[0m"
 	@echo "ddnsd: \033[0;31mPlease edit /etc/ddns/ddnsd.conf.\033[0m"
 	@echo "ddnsd: \033[0;31mStopping service, after configuration type \"service ddnsd start\" to start the service.\033[0m"
+	@echo "ddnsd: \033[0;31mBefore you restart the service make sure that your server/computer is connected to the internet.\033[0m"
+	@echo "ddnsd: \033[0;31mAlso check that your DNS Zone files contain your CURRENT IP-ADDRESS.\033[0m"
 
 update:
 	@service ddnsd stop

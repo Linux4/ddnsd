@@ -281,8 +281,8 @@ int main(int argc, char** argv) {
 		//Wait as long as update_freq
 		std::this_thread::sleep_for (std::chrono::seconds(update_freq));
 		//Read last known IP-Adress
-		std::string OLDIP;
 		f.open("/etc/ddns/.oldip.ddns", std::fstream::in );
+		std::string OLDIP;
 		getline( f, OLDIP, '\0');
 		f.close();
 		f.open("/etc/ddns/.oldip6.ddns", std::fstream::in);

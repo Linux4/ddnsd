@@ -243,6 +243,10 @@ int main(int argc, char** argv) {
 		if (std::string(argv[1]) == "-version" || std::string(argv[1]) == "--version") {
 			std::cout << "DDNSD " << version << " " << release_date << std::endl;
 			exit(0);
+		} else if(std::string(argv[1]) == "-firstrun" || std::string(argv[1]) == "--firstrun") {
+			system("curl --silent https://v4.ident.me >/etc/ddns/.oldip.ddns");
+			system("curl --silent https://v6.ident.me >/etc/ddns/.oldip6.ddns");
+			exit(0);
 		}
 	}
 	//Read config

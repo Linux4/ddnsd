@@ -271,7 +271,7 @@ int main(int argc, char** argv) {
 	//Check if config exists, if not create config files
 	if (config_version.length() == 0) {
 		std::cout << "It looks like the service is started first time, creating configuration files..." << std::endl;
-		system("mkdir -p /etc/ddns & echo \"#DDNSD Configuration\n\n#Enable (true)/Disable (false) the service:\nenabled = true\n\n#IP-Address update frequency:\nupdate_freq = 60\n\n#Domain Name Path to DNS zone files (format: yourdomain.com:/etc/bind/db.yourdomain.com") seperated by comma:\nzones = example.com:/etc/bind/db.example.com,example2.com:/etc/bind/db.example2.com\n\n#Commands that will be executed after DNS zone update (seperated by &):\npost_update_cmds = service bind9 restart & custom_cmd & custom_cmd2\n\n#Enable (true)/Disable (false) the Update Checker:\nupdate_checker = true\n\n#Do not touch:\nconfig_version = 2\n\" >/etc/ddns/ddnsd.conf");
+		system("mkdir -p /etc/ddns & echo \"#DDNSD Configuration\n\n#Enable (true)/Disable (false) the service:\nenabled = true\n\n#IP-Address update frequency:\nupdate_freq = 60\n\n#Domain Name Path to DNS zone files (format: yourdomain.com:/etc/bind/db.yourdomain.com) seperated by comma:\nzones = example.com:/etc/bind/db.example.com,example2.com:/etc/bind/db.example2.com\n\n#Commands that will be executed after DNS zone update (seperated by &):\npost_update_cmds = service bind9 restart & custom_cmd & custom_cmd2\n\n#Enable (true)/Disable (false) the Update Checker:\nupdate_checker = true\n\n#Do not touch:\nconfig_version = 2\n\" >/etc/ddns/ddnsd.conf");
 		system("curl --silent https://v4.ident.me >/etc/ddns/.oldip.ddns");
 		system("curl --silent https://v6.ident.me >/etc/ddns/.oldip6.ddns");
 		std::cout << "Config file created." << std::endl;

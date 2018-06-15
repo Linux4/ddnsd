@@ -5,7 +5,12 @@ Author: Tim Zimmermann <tim.zimmermann@server24-7.eu>
 Ddnsd is a background service to dynamically update  
 your IP-Adress in a DNS Zone file. It is compatible  
 with most linux / unix based operating systems     
-  
+
+## NOTICE  
+You will probably need a secondary nameserver with  
+an static IP-Address to which your nameserver will  
+send the updated zone.
+
 ## Requirements:    
 - Linux / Unix based operating system  
 - Systemd

@@ -84,15 +84,26 @@ std::string read_config(std::string file_path, std::string config_key) {
         return result;
 }
 
-void updateip(std::string zone_path, std::string OLDIP, std::string IP, bool ipv6) {
+void updateip(std::string zone, std::string OLDIP, std::string IP, bool ipv6) {
+	std::vector<std::string> zone_name_path;
+	boost::split(zone_name_path, zone, boost::is_any_of(":"));
+	int zonesize = zone_name_path.size();
+	std::string zone_path;
+	std::string zone_name;
+	if(zonesize == 2) {
+		zone_name = zone_name_path.at(0);
+		zone_path = zone_name_path.at(1);
+	} else {
+		zone_path = zone;
+		zone_name = zone;
+		boost::replace_all(zone_name, "/etc/bind/db.", "");
+	}
 	//Check if given DNS Zone file exists
 	if(!(file_exists(zone_path))) {
                 std::cerr << "ERROR: The given DNS Zone file (" << zone_path << ") does not exist!" << std::endl;
                 return;
         }
 	std::fstream f;
-	std::string zone_name = zone_path;
-	boost::replace_all(zone_name, "/etc/bind/db.", "");
 	//Get actual serial + zone version
 	f.open("/etc/ddns/.serial_old.ddns", std::ios::out);
 	std::string serial_dig = shell_exec("dig +short @localhost "+zone_name+" SOA | awk '{print $3}'");
@@ -209,8 +220,8 @@ void updateip(std::string zone_path, std::string OLDIP, std::string IP, bool ipv
 
 int main(int argc, char** argv) {
 	std::fstream f;
-	std::string version = "v5.0";
-	std::string release_date = "09.06.2018";
+	std::string version = "v5.1";
+	std::string release_date = "15.06.2018";
 	std::string config = "/etc/ddns/ddnsd.conf";
 	std::string update_checker = read_config(config, "update_checker = ");
 	if (update_checker == "true") {
@@ -224,6 +235,7 @@ int main(int argc, char** argv) {
 			else {
                 		std::cout << "Update to version " << remote_version << " available!" << std::endl;
                 		std::cout << "To update clone the following Git Repository: https://github.com/Schmorzel/ddnsd" << std::endl;
+				std::cout << "Or use the APT Repository http://deb.server24-7.eu/" << std::endl;
 			}
         	}
 	}
@@ -242,13 +254,10 @@ int main(int argc, char** argv) {
 	}
 	std::string update_freq_string;
 	update_freq_string = read_config(config, "update_freq = ");
-	std::string zone_path_string;
-	zone_path_string = read_config(config, "zone_path = ");
-	std::vector<std::string> zone_path;
-	boost::split(zone_path, zone_path_string, boost::is_any_of(","));
-	std::string zone_name_string = read_config(config, "zone_name = ");
-	std::vector<std::string> zone_name;
-	boost::split(zone_name, zone_name_string, boost::is_any_of(","));
+	std::string zones_string;
+	zones_string = read_config(config, "zones = ");
+	std::vector<std::string> zones;
+	boost::split(zones, zones_string, boost::is_any_of(","));
 	std::string cmds_string;
 	cmds_string = read_config(config, "post_update_cmds = ");
 	char cmds[sizeof(cmds_string)];
@@ -262,7 +271,7 @@ int main(int argc, char** argv) {
 	//Check if config exists, if not create config files
 	if (config_version.length() == 0) {
 		std::cout << "It looks like the service is started first time, creating configuration files..." << std::endl;
-		system("mkdir -p /etc/ddns & echo \"#DDNSD Configuration\n\n#Enable (true)/Disable (false) the service:\nenabled = true\n\n#IP-Address update frequency:\nupdate_freq = 60\n\n#Path to DNS zone files seperated by comma:\nzone_path = /etc/bind/db.example.com,/etc/bind/db.example2.com\n#Please use paths like /etc/bind/db.yourdomain.com\n\n#Commands that will be executed after DNS zone update (seperated by &):\npost_update_cmds = service bind9 restart & custom_cmd & custom_cmd2\n\n#Enable (true)/Disable (false) the Update Checker:\nupdate_checker = true\n\n#Do not touch:\nconfig_version = 1\n\" >/etc/ddns/ddnsd.conf");
+		system("mkdir -p /etc/ddns & echo \"#DDNSD Configuration\n\n#Enable (true)/Disable (false) the service:\nenabled = true\n\n#IP-Address update frequency:\nupdate_freq = 60\n\n#Domain Name Path to DNS zone files (format: yourdomain.com:/etc/bind/db.yourdomain.com") seperated by comma:\nzones = example.com:/etc/bind/db.example.com,example2.com:/etc/bind/db.example2.com\n\n#Commands that will be executed after DNS zone update (seperated by &):\npost_update_cmds = service bind9 restart & custom_cmd & custom_cmd2\n\n#Enable (true)/Disable (false) the Update Checker:\nupdate_checker = true\n\n#Do not touch:\nconfig_version = 2\n\" >/etc/ddns/ddnsd.conf");
 		system("curl --silent https://v4.ident.me >/etc/ddns/.oldip.ddns");
 		system("curl --silent https://v6.ident.me >/etc/ddns/.oldip6.ddns");
 		std::cout << "Config file created." << std::endl;
@@ -308,12 +317,12 @@ int main(int argc, char** argv) {
 		}
 		if (IP != OLDIP || IP6 != OLDIP6) {
 			if(IP != OLDIP) {
-				for(std::string tmpStr : zone_path) {
+				for(std::string tmpStr : zones) {
 					updateip(tmpStr, OLDIP, IP, false);
 				}
 			}
 			if(IP6 != OLDIP6) {
-				for(std::string tmpStr : zone_path) {
+				for(std::string tmpStr : zones) {
 					updateip(tmpStr, OLDIP6, IP6, true);
 				}
 			}

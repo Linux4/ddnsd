@@ -220,7 +220,7 @@ void updateip(std::string zone, std::string OLDIP, std::string IP, bool ipv6) {
 
 int main(int argc, char** argv) {
 	std::fstream f;
-	std::string version = "v5.1.2";
+	std::string version = "v5.1.3";
 	std::string release_date = "17.06.2018";
 	std::string config = "/etc/ddns/ddnsd.conf";
 	std::string update_checker = read_config(config, "update_checker = ");
@@ -336,5 +336,9 @@ int main(int argc, char** argv) {
 				system(cmd);
 			}
 		}
+		OLDIP.clear();
+		OLDIP6.clear();
+		IP.clear();
+		IP6.clear();
 	}
 }

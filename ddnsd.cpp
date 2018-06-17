@@ -220,8 +220,8 @@ void updateip(std::string zone, std::string OLDIP, std::string IP, bool ipv6) {
 
 int main(int argc, char** argv) {
 	std::fstream f;
-	std::string version = "v5.1.1";
-	std::string release_date = "15.06.2018";
+	std::string version = "v5.1.2";
+	std::string release_date = "17.06.2018";
 	std::string config = "/etc/ddns/ddnsd.conf";
 	std::string update_checker = read_config(config, "update_checker = ");
 	if (update_checker == "true") {
@@ -264,8 +264,8 @@ int main(int argc, char** argv) {
 	boost::split(zones, zones_string, boost::is_any_of(","));
 	std::string cmds_string;
 	cmds_string = read_config(config, "post_update_cmds = ");
-	char cmds[sizeof(cmds_string)];
-	strncpy(cmds, cmds_string.c_str(), sizeof(cmds));
+	std::vector<std::string> cmds;
+	boost::split(cmds, cmds_string, boost::is_any_of(","));
 	std::string config_version;
 	config_version = read_config(config, "config_version = ");
 	f.open("/run/ddnsd.pid", std::ios::out );
@@ -275,7 +275,7 @@ int main(int argc, char** argv) {
 	//Check if config exists, if not create config files
 	if (config_version.length() == 0) {
 		std::cout << "It looks like the service is started first time, creating configuration files..." << std::endl;
-		system("mkdir -p /etc/ddns & echo \"#DDNSD Configuration\n\n#Enable (true)/Disable (false) the service:\nenabled = true\n\n#IP-Address update frequency:\nupdate_freq = 60\n\n#Domain Name and Path to DNS zone files (format: yourdomain.com:/etc/bind/db.yourdomain.com) seperated by comma:\nzones = example.com:/etc/bind/db.example.com,example2.com:/etc/bind/db.example2.com\n\n#Commands that will be executed after DNS zone update (seperated by &):\npost_update_cmds = service bind9 restart & custom_cmd & custom_cmd2\n\n#Enable (true)/Disable (false) the Update Checker:\nupdate_checker = true\n\n#Do not touch:\nconfig_version = 2\n\" >/etc/ddns/ddnsd.conf");
+		system("mkdir -p /etc/ddns & echo \"#DDNSD Configuration\n\n#Enable (true)/Disable (false) the service:\nenabled = true\n\n#IP-Address update frequency:\nupdate_freq = 60\n\n#Domain Name and Path to DNS zone files (format: yourdomain.com:/etc/bind/db.yourdomain.com) seperated by comma:\nzones = example.com:/etc/bind/db.example.com,example2.com:/etc/bind/db.example2.com\n\n#Commands that will be executed after DNS zone update seperated by comma:\npost_update_cmds = service bind9 restart,custom_cmd,custom_cmd2\n\n#Enable (true)/Disable (false) the Update Checker:\nupdate_checker = true\n\n#Do not touch:\nconfig_version = 2\n\" >/etc/ddns/ddnsd.conf");
 		system("curl --silent https://v4.ident.me >/etc/ddns/.oldip.ddns");
 		system("curl --silent https://v6.ident.me >/etc/ddns/.oldip6.ddns");
 		std::cout << "Config file created." << std::endl;
@@ -330,7 +330,11 @@ int main(int argc, char** argv) {
 					updateip(tmpStr, OLDIP6, IP6, true);
 				}
 			}
-			system(cmds);
+			for(std::string tmpStr : cmds) {
+				char cmd[sizeof(tmpStr)];
+				strncpy(cmd, tmpStr.c_str(), sizeof(tmpStr));
+				system(cmd);
+			}
 		}
 	}
 }

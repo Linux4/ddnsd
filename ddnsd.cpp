@@ -220,7 +220,7 @@ void updateip(std::string zone, std::string OLDIP, std::string IP, bool ipv6) {
 
 int main(int argc, char** argv) {
 	std::fstream f;
-	std::string version = "v5.1.3";
+	std::string version = "v5.1.4";
 	std::string release_date = "17.06.2018";
 	std::string config = "/etc/ddns/ddnsd.conf";
 	std::string update_checker = read_config(config, "update_checker = ");
@@ -262,10 +262,12 @@ int main(int argc, char** argv) {
 	zones_string = read_config(config, "zones = ");
 	std::vector<std::string> zones;
 	boost::split(zones, zones_string, boost::is_any_of(","));
+	zones_string.clear();
 	std::string cmds_string;
 	cmds_string = read_config(config, "post_update_cmds = ");
 	std::vector<std::string> cmds;
 	boost::split(cmds, cmds_string, boost::is_any_of(","));
+	cmds_string.clear();
 	std::string config_version;
 	config_version = read_config(config, "config_version = ");
 	f.open("/run/ddnsd.pid", std::ios::out );
@@ -284,6 +286,7 @@ int main(int argc, char** argv) {
 		exit(1);
 	}
         int update_freq = atoi(update_freq_string.c_str());
+	update_freq_string.clear();
 	//Check if update frequency is a number and greater 0
         if(update_freq == 0) {
                 std::cerr << "ERROR: The given update frequency (" << update_freq_string << ") is not a valid number!" << std::endl;

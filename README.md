@@ -9,7 +9,8 @@ with most linux / unix based operating systems
 ## NOTICE  
 You will probably need a secondary nameserver with  
 an static IP-Address to which your nameserver will  
-send the updated zone.
+send the updated zone, or another dynamic domain  
+which is always up to date.
 
 ## Requirements:    
 - Linux / Unix based operating system  

@@ -41,11 +41,11 @@ int main(int argc, char** argv) {
 	std::string update_freq_string;
 	update_freq_string = utils::read_config(config, "update_freq = ");
 	std::string zones_string;
-	zones_string = config, "zones = ";
+	zones_string = utils::read_config(config, "zones = ");
 	std::vector<std::string> zones;
 	boost::split(zones, zones_string, boost::is_any_of(","));
 	std::string cmds_string;
-	cmds_string = config, "post_update_cmds = ";
+	cmds_string = utils::read_config(config, "post_update_cmds = ");
 	std::vector<std::string> cmds;
 	boost::split(cmds, cmds_string, boost::is_any_of(","));
 	std::string config_version;

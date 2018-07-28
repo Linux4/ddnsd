@@ -2,8 +2,8 @@
 
 int main(int argc, char** argv) {
 	std::fstream f;
-	std::string version = "v5.1.4";
-	std::string release_date = "17.06.2018";
+	std::string version = "v5.1.5";
+	std::string release_date = "28.07.2018";
 	std::string config = "/etc/ddns/ddnsd.conf";
 	std::string update_checker = utils::read_config(config, "update_checker = ");
 	if (update_checker == "true") {
@@ -41,15 +41,13 @@ int main(int argc, char** argv) {
 	std::string update_freq_string;
 	update_freq_string = utils::read_config(config, "update_freq = ");
 	std::string zones_string;
-	zones_string = utils::read_config(config, "zones = ");
+	zones_string = config, "zones = ";
 	std::vector<std::string> zones;
 	boost::split(zones, zones_string, boost::is_any_of(","));
-	zones_string.clear();
 	std::string cmds_string;
-	cmds_string = utils::read_config(config, "post_update_cmds = ");
+	cmds_string = config, "post_update_cmds = ";
 	std::vector<std::string> cmds;
 	boost::split(cmds, cmds_string, boost::is_any_of(","));
-	cmds_string.clear();
 	std::string config_version;
 	config_version = utils::read_config(config, "config_version = ");
 	f.open("/run/ddnsd.pid", std::ios::out );
@@ -78,52 +76,52 @@ int main(int argc, char** argv) {
 	while(true) {
 		//Wait as long as update_freq
 		std::this_thread::sleep_for (std::chrono::seconds(update_freq));
-		//Read last known IP-Adress
-		f.open("/etc/ddns/.oldip.ddns", std::fstream::in );
-		std::string OLDIP;
-		getline( f, OLDIP, '\0');
-		f.close();
-		f.open("/etc/ddns/.oldip6.ddns", std::fstream::in);
-		std::string OLDIP6;
-		getline(f, OLDIP6, '\0');
-		f.close();
-		//Get actual IP-Adress
-		std::string IP = utils::shell_exec("curl --silent https://v4.ident.me/");
-		std::string IP6 = utils::shell_exec("curl --silent https://v6.ident.me/");
-		//Check if IP is a valid IP-Adress
-		//e.g if no internet connection is available
-		bool ipv4 = true;
-		if (!ddnsd::is_ipv4_address(IP)) {
-			std::cerr << "ERROR: Failed to get valid IPv4-Address" << std::endl;
-			//Set IP to OLDIP to skip updating DNS Zone
-			IP = OLDIP;
-			ipv4 = false;
-		} if(!ddnsd::is_ipv6_address(IP6)) {
-			IP6 = OLDIP6;
-			if(!ipv4) {
-				std::cerr << "ERROR: Failed to get valid IPv6 Address" << std::endl;
+		while(true) {
+			//Read last known IP-Adress
+			f.open("/etc/ddns/.oldip.ddns", std::fstream::in );
+			std::string OLDIP;
+			getline( f, OLDIP, '\0');
+			f.close();
+			f.open("/etc/ddns/.oldip6.ddns", std::fstream::in);
+			std::string OLDIP6;
+			getline(f, OLDIP6, '\0');
+			f.close();
+			//Get current IP-Adress
+			std::string IP = utils::shell_exec("curl --silent https://v4.ident.me/");
+			std::string IP6 = utils::shell_exec("curl --silent https://v6.ident.me/");
+			//Check if IP is a valid IP-Adress
+			//e.g if no internet connection is available
+			bool ipv4 = true;
+			if (!ddnsd::is_ipv4_address(IP)) {
+				std::cerr << "ERROR: Failed to get valid IPv4-Address" << std::endl;
+				//Set IP to OLDIP to skip updating DNS Zone
+				IP = OLDIP;
+				ipv4 = false;
 			}
-		}
-		if (IP != OLDIP || IP6 != OLDIP6) {
-			if(IP != OLDIP) {
-				for(std::string tmpStr : zones) {
-					ddnsd::updateip(tmpStr, OLDIP, IP, false);
+			if(!ddnsd::is_ipv6_address(IP6)) {
+				IP6 = OLDIP6;
+				if(!ipv4) {
+					std::cerr << "ERROR: Failed to get valid IPv6 Address" << std::endl;
 				}
 			}
-			if(IP6 != OLDIP6) {
-				for(std::string tmpStr : zones) {
-					ddnsd::updateip(tmpStr, OLDIP6, IP6, true);
+			if (IP != OLDIP || IP6 != OLDIP6) {
+				if(IP != OLDIP) {
+					for(std::string tmpStr : zones) {
+						ddnsd::updateip(tmpStr, OLDIP, IP, false);
+					}
+				}
+				if(IP6 != OLDIP6) {
+					for(std::string tmpStr : zones) {
+						ddnsd::updateip(tmpStr, OLDIP6, IP6, true);
+					}
+				}
+				for(std::string tmpStr : cmds) {
+					char cmd[sizeof(tmpStr)];
+					strncpy(cmd, tmpStr.c_str(), sizeof(tmpStr));
+					system(cmd);
 				}
 			}
-			for(std::string tmpStr : cmds) {
-				char cmd[sizeof(tmpStr)];
-				strncpy(cmd, tmpStr.c_str(), sizeof(tmpStr));
-				system(cmd);
-			}
+			break;
 		}
-		OLDIP.clear();
-		OLDIP6.clear();
-		IP.clear();
-		IP6.clear();
 	}
 }

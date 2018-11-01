@@ -1,16 +1,17 @@
 #include "ddnsd.h"
 
+#define BUILD_DATE util::Time(time(0), "%Y-%m-%d")
+#define VERSION "v5.3.0"
+
 int main(int argc, char** argv) {
 	std::fstream f;
-	std::string version = "v5.3.0";
-	std::string release_date = "01.11.2018";
 	std::string config = "/etc/ddns/ddnsd.conf";
 	std::string update_checker = util::read_config(config, "update_checker = ");
 	if (update_checker == "true") {
 		std::string remote_version = www::get_content("https://raw.githubusercontent.com/Schmorzel/ddnsd/master/.version");
      	   	boost::replace_all(remote_version, "\n", "");
         	boost::replace_all(remote_version, "\r", "");
-        	if (remote_version != version) {
+        	if (remote_version != VERSION) {
 			if (remote_version.length() == 0) {
 				std::cout << "Could not check for updates!" << std::endl;
 			}
@@ -23,7 +24,7 @@ int main(int argc, char** argv) {
 	}
 	if (argc > 1) {
 		if (std::string(argv[1]) == "-version" || std::string(argv[1]) == "--version") {
-			std::cout << "DDNSD " << version << " " << release_date << std::endl;
+			std::cout << "DDNSD " << VERSION << " " << BUILD_DATE << " (g++ version " << __VERSION__ << ")" << std::endl;
 			exit(0);
 		} else if(std::string(argv[1]) == "-firstrun" || std::string(argv[1]) == "--firstrun") {
 			f.open("/etc/ddns/.oldip.ddns", std::ios::out);

@@ -76,7 +76,7 @@ int main(int argc, char** argv) {
 	while(true) {
 		//Wait as long as update_freq
 		std::this_thread::sleep_for (std::chrono::seconds(update_freq));
-		while(true) {
+		{
 			//Read last known IP-Adress
 			f.open("/etc/ddns/.oldip.ddns", std::fstream::in );
 			std::string OLDIP;
@@ -121,7 +121,6 @@ int main(int argc, char** argv) {
 					system(cmd);
 				}
 			}
-			break;
 		}
 	}
 }

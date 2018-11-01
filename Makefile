@@ -26,3 +26,6 @@ uninstall:
 	systemctl disable ddnsd.service
 	@rm -f /lib/systemd/system/ddnsd.service
 	@rm -f /usr/bin/ddnsd
+
+clean:
+	rm -f ddnsd

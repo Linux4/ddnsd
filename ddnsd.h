@@ -15,6 +15,7 @@
 #include <arpa/inet.h>
 #include "util.h"
 #include "dns.h"
+#include "www.h"
 
 namespace ddnsd {
 	bool is_ipv4_address(const std::string& str) {

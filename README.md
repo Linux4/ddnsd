@@ -17,7 +17,6 @@ which is always up to date.
 - Systemd
 - g++  
 - make  
-- curl
 - dns server software like bind9 installed on localhost  
   and allowing requests from localhost
 

@@ -2,12 +2,12 @@
 
 int main(int argc, char** argv) {
 	std::fstream f;
-	std::string version = "v5.2.0";
+	std::string version = "v5.3.0";
 	std::string release_date = "01.11.2018";
 	std::string config = "/etc/ddns/ddnsd.conf";
 	std::string update_checker = util::read_config(config, "update_checker = ");
 	if (update_checker == "true") {
-		std::string remote_version = util::shell_exec("curl --silent https://raw.githubusercontent.com/Schmorzel/ddnsd/master/.version");
+		std::string remote_version = www::get_content("https://raw.githubusercontent.com/Schmorzel/ddnsd/master/.version");
      	   	boost::replace_all(remote_version, "\n", "");
         	boost::replace_all(remote_version, "\r", "");
         	if (remote_version != version) {
@@ -26,8 +26,12 @@ int main(int argc, char** argv) {
 			std::cout << "DDNSD " << version << " " << release_date << std::endl;
 			exit(0);
 		} else if(std::string(argv[1]) == "-firstrun" || std::string(argv[1]) == "--firstrun") {
-			system("curl --silent http://v4.ident.me >/etc/ddns/.oldip.ddns");
-			system("curl --silent http://v6.ident.me >/etc/ddns/.oldip6.ddns");
+			f.open("/etc/ddns/.oldip.ddns", std::ios::out);
+			f << www::get_content("https://v4.ident.me");
+			f.close();
+			f.open("/etc/ddns/.oldip6.ddns", std::ios::out);
+			f << www::get_content("https://v6.ident.me");
+			f.close();
 			exit(0);
 		}
 	}
@@ -58,8 +62,12 @@ int main(int argc, char** argv) {
 	if (config_version.length() == 0) {
 		std::cout << "It looks like the service is started first time, creating configuration files..." << std::endl;
 		system("mkdir -p /etc/ddns & echo \"#DDNSD Configuration\n\n#Enable (true)/Disable (false) the service:\nenabled = true\n\n#IP-Address update frequency:\nupdate_freq = 60\n\n#Domain Name and Path to DNS zone files (format: yourdomain.com:/etc/bind/db.yourdomain.com) seperated by comma:\nzones = example.com:/etc/bind/db.example.com,example2.com:/etc/bind/db.example2.com\n\n#Commands that will be executed after DNS zone update seperated by comma:\npost_update_cmds = service bind9 restart,custom_cmd,custom_cmd2\n\n#Enable (true)/Disable (false) the Update Checker:\nupdate_checker = true\n\n#Do not touch:\nconfig_version = 2\n\" >/etc/ddns/ddnsd.conf");
-		system("curl --silent http://v4.ident.me >/etc/ddns/.oldip.ddns");
-		system("curl --silent http://v6.ident.me >/etc/ddns/.oldip6.ddns");
+		f.open("/etc/ddns/.oldip.ddns", std::ios::out);
+		f << www::get_content("https://v4.ident.me");
+		f.close();
+		f.open("/etc/ddns/.oldip6.ddns", std::ios::out);
+		f << www::get_content("https://v6.ident.me");
+		f.close();
 		std::cout << "Config file created." << std::endl;
 		std::cout << "Please edit /etc/ddns/ddnsd.conf" << std::endl;;
 		std::cout << "Stopping service, after configuration type \"service ddnsd start\" to start the service." << std::endl;
@@ -87,8 +95,8 @@ int main(int argc, char** argv) {
 			getline(f, OLDIP6, '\0');
 			f.close();
 			//Get current IP-Adress
-			std::string IP = util::shell_exec("curl --silent http://v4.ident.me/");
-			std::string IP6 = util::shell_exec("curl --silent http://v6.ident.me/");
+			std::string IP = www::get_content("https://v4.ident.me/");
+			std::string IP6 = www::get_content("https://v6.ident.me/");
 			//Check if IP is a valid IP-Adress
 			//e.g if no internet connection is available
 			bool ipv4 = true;

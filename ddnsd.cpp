@@ -3,7 +3,7 @@
 int main(int argc, char** argv) {
 	std::fstream f;
 	std::string version = "v5.1.5";
-	std::string release_date = "28.07.2018";
+	std::string release_date = "01.11.2018";
 	std::string config = "/etc/ddns/ddnsd.conf";
 	std::string update_checker = utils::read_config(config, "update_checker = ");
 	if (update_checker == "true") {

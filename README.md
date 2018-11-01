@@ -22,7 +22,7 @@ which is always up to date.
 - Linux / Unix based operating system
 - g++
 - make
-- libcurl-openssl-dev
+- libcurl4-openssl-dev
 - libboost-dev
 
 ## Installation:  

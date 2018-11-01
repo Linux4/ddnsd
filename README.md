@@ -15,10 +15,15 @@ which is always up to date.
 ## Requirements:    
 - Linux / Unix based operating system  
 - Systemd
-- g++  
-- make  
 - dns server software like bind9 installed on localhost  
-  and allowing requests from localhost
+  and allowing requests from localhost  
+
+## Build Requirements
+- Linux / Unix based operating system
+- g++
+- make
+- libcurl-openssl-dev
+- libboost-dev
 
 ## Installation:  
 - Please run the installer as root

@@ -13,7 +13,8 @@
 #include <boost/algorithm/string.hpp>
 #include <vector>
 #include <arpa/inet.h>
-#include "utils.h"
+#include "util.h"
+#include "dns.h"
 
 namespace ddnsd {
 	bool is_ipv4_address(const std::string& str) {
@@ -41,16 +42,14 @@ namespace ddnsd {
 			boost::replace_all(zone_name, "/etc/bind/db.", "");
 		}
 		//Check if given DNS Zone file exists
-		if(!(utils::file_exists(zone_path))) {
+		if(!(util::file_exists(zone_path))) {
 	                std::cerr << "ERROR: The given DNS Zone file (" << zone_path << ") does not exist!" << std::endl;
 	                return;
 	        }
 		std::fstream f;
 		//Get actual serial + zone version
 		f.open("/etc/ddns/.serial_old.ddns", std::ios::out);
-		std::string serial_dig = utils::shell_exec("dig +short @localhost "+zone_name+" SOA | awk '{print $3}'");
-		boost::replace_all(serial_dig, "\n", "");
-		boost::replace_all(serial_dig, "\r", "");
+		std::string serial_dig = dns::get_serial(zone_name);
 	        f << serial_dig;
 	        f.close();
 	        std::string date_dig = serial_dig.substr(0, serial_dig.length() - 2);
@@ -74,7 +73,7 @@ namespace ddnsd {
 		//Write actual time
 		std::time_t tt = time(0);
 		f.open("/etc/ddns/.date.ddns", std::ios::out);
-		f << utils::Time( tt, "%Y%m%d0" );
+		f << util::Time( tt, "%Y%m%d0" );
 		f.close();
 		//Read actual time
 		f.open("/etc/ddns/.date.ddns", std::fstream::in );
@@ -85,7 +84,7 @@ namespace ddnsd {
 		if (date_old != date) {
 			//If not set DNS Zone Version to 0
 			f.open("/etc/ddns/.date_old.ddns", std::ios::out);
-			f << utils::Time( tt, "%Y%m%d0" );
+			f << util::Time( tt, "%Y%m%d0" );
 			f.close();
 			int zeit = 0;
 			f.open("/etc/ddns/.version.ddns", std::ios::out);
@@ -111,7 +110,7 @@ namespace ddnsd {
 			//If yes generate date without 0 as placeholder at the end
 			std::time_t tt = time(0);
 			f.open("/etc/ddns/.10-date.ddns", std::ios::out);
-			f << utils::Time( tt, "%Y%m%d" );
+			f << util::Time( tt, "%Y%m%d" );
 			f.close();
 			f.open("/etc/ddns/.10-date.ddns", std::fstream::in );
 			std::string date;

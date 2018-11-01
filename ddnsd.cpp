@@ -2,12 +2,12 @@
 
 int main(int argc, char** argv) {
 	std::fstream f;
-	std::string version = "v5.1.5";
+	std::string version = "v5.2.0";
 	std::string release_date = "01.11.2018";
 	std::string config = "/etc/ddns/ddnsd.conf";
-	std::string update_checker = utils::read_config(config, "update_checker = ");
+	std::string update_checker = util::read_config(config, "update_checker = ");
 	if (update_checker == "true") {
-		std::string remote_version = utils::shell_exec("curl --silent https://raw.githubusercontent.com/Schmorzel/ddnsd/master/.version");
+		std::string remote_version = util::shell_exec("curl --silent https://raw.githubusercontent.com/Schmorzel/ddnsd/master/.version");
      	   	boost::replace_all(remote_version, "\n", "");
         	boost::replace_all(remote_version, "\r", "");
         	if (remote_version != version) {
@@ -33,23 +33,23 @@ int main(int argc, char** argv) {
 	}
 	//Read config
 	std::string enabled;
-	enabled = utils::read_config(config, "enabled = ");
+	enabled = util::read_config(config, "enabled = ");
 	if (enabled == "false") {
 		std::cout << "/etc/ddns/ddnsd.conf: enabled is set to false... Stopping service..." << std::endl;
 		exit(0);
 	}
 	std::string update_freq_string;
-	update_freq_string = utils::read_config(config, "update_freq = ");
+	update_freq_string = util::read_config(config, "update_freq = ");
 	std::string zones_string;
-	zones_string = utils::read_config(config, "zones = ");
+	zones_string = util::read_config(config, "zones = ");
 	std::vector<std::string> zones;
 	boost::split(zones, zones_string, boost::is_any_of(","));
 	std::string cmds_string;
-	cmds_string = utils::read_config(config, "post_update_cmds = ");
+	cmds_string = util::read_config(config, "post_update_cmds = ");
 	std::vector<std::string> cmds;
 	boost::split(cmds, cmds_string, boost::is_any_of(","));
 	std::string config_version;
-	config_version = utils::read_config(config, "config_version = ");
+	config_version = util::read_config(config, "config_version = ");
 	f.open("/run/ddnsd.pid", std::ios::out );
 	f << getpid();
 	f << "\n";
@@ -87,8 +87,8 @@ int main(int argc, char** argv) {
 			getline(f, OLDIP6, '\0');
 			f.close();
 			//Get current IP-Adress
-			std::string IP = utils::shell_exec("curl --silent http://v4.ident.me/");
-			std::string IP6 = utils::shell_exec("curl --silent http://v6.ident.me/");
+			std::string IP = util::shell_exec("curl --silent http://v4.ident.me/");
+			std::string IP6 = util::shell_exec("curl --silent http://v6.ident.me/");
 			//Check if IP is a valid IP-Adress
 			//e.g if no internet connection is available
 			bool ipv4 = true;

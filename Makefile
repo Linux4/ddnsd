@@ -1,5 +1,5 @@
 default:
-	g++ ddnsd.cpp -I./ -o ddnsd
+	g++ ddnsd.cpp -I./ -o ddnsd -lresolv
 
 install:
 	@mkdir -p /etc/ddns/

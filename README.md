@@ -20,8 +20,6 @@ which is always up to date.
 - curl
 - dns server software like bind9 installed on localhost  
   and allowing requests from localhost
-- dnsutils
-- gawk
 
 ## Installation:  
 - Please run the installer as root

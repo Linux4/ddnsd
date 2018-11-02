@@ -21,7 +21,6 @@ namespace dns {
 			ns_initparse(nsbuffer, msg_length, &msg);
 			ns_rr rr;
 			ns_parserr(&msg, ns_s_an, 0, &rr);
-			const u_char *rdata = ns_rr_rdata(rr);
 			char dispbuffer[NS_MAXDNAME];
 			ns_sprintrr(&msg, &rr, NULL, NULL, dispbuffer, sizeof(dispbuffer));
 			std::string full_record(dispbuffer);

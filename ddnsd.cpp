@@ -1,7 +1,7 @@
 #include "ddnsd.h"
 
 #define BUILD_DATE util::Time(time(0), "%Y-%m-%d")
-#define VERSION "v5.3.0"
+#define VERSION "v6.0.0"
 
 int main(int argc, char** argv) {
 	std::fstream f;

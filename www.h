@@ -34,6 +34,8 @@ CURL* login(std::string url) {
 	std::string read_buffer;
 	if (curl) {
 		curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+		curl_easy_setopt(curl, CURLOPT_COOKIEFILE, "/tmp/.cookies.ddns");
+		curl_easy_setopt(curl, CURLOPT_COOKIEJAR, "/tmp/.cookies.ddns");
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, www::write_callback);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &read_buffer);
 		curl_easy_perform(curl);
@@ -48,11 +50,11 @@ long get_status(CURL* curl) {
 }
 
 long access_logged_in(std::string url, CURL* curl) {
-	curl_global_init(CURL_GLOBAL_ALL);
-	curl = curl_easy_init();
 	std::string read_buffer;
 	if (curl) {
 		curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+		curl_easy_setopt(curl, CURLOPT_COOKIEFILE, "/tmp/.cookies.ddns");
+		curl_easy_setopt(curl, CURLOPT_COOKIEJAR, "/tmp/.cookies.ddns");
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, www::write_callback);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &read_buffer);
 		curl_easy_perform(curl);

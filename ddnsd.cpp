@@ -93,7 +93,7 @@ int main(int argc, char** argv) {
 		f << "#DDNSD Configuration" << std::endl << std::endl
 				<< "#Enable (true)/Disable (false) the service:" << std::endl
 				<< "enabled = true" << std::endl << std::endl
-				<< "#IP-Address update frequency:" << std::endl << std::endl
+				<< "#IP-Address update frequency:" << std::endl
 				<< "update_freq = 60" << std::endl << std::endl
 				<< "#Domain Name and Path to DNS zone files (format: yourdomain.com:/etc/bind/db.yourdomain.com) separated by comma:"
 				<< std::endl

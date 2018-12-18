@@ -3,11 +3,51 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <chrono>
-#include <boost/algorithm/string/replace.hpp>
 #include <fstream>
 #include <memory>
 
 namespace util {
+
+bool replace(std::string& str, const std::string& replace,
+		const std::string& replacement) {
+	size_t start_pos = str.find(replace);
+	if (start_pos != std::string::npos) {
+		str.replace(start_pos, replace.length(), replacement);
+		return true;
+	}
+
+	return false;
+}
+
+std::string replace_all(std::string& str, const std::string& replace,
+		const std::string& replacement) {
+	size_t start_pos = 0;
+	while ((start_pos = str.find(replace, start_pos)) != std::string::npos) {
+		str.replace(start_pos, replace.length(), replacement);
+		start_pos += replacement.length();
+	}
+
+	return str;
+}
+
+std::vector<std::string> split(std::string str, char token) {
+	std::istringstream ss(str);
+	std::vector<std::string> broken;
+	std::string tmp;
+	while (std::getline(ss, tmp, token)) {
+		broken.push_back(tmp);
+	}
+	return broken;
+}
+
+bool bool_from_string(std::string str) {
+	if (str == "1" || str == "true") {
+		return true;
+	} else {
+		return false;
+	}
+}
+
 struct Time {
 	Time(std::time_t tm, const std::string format) :
 			m_tm(tm), m_format(format) {
@@ -56,7 +96,7 @@ std::string read_config(std::string file_path, std::string config_key) {
 	int length = config_key.length();
 	while (getline(f, config_value)) {
 		if (config_value.substr(0, length) == config_key) {
-			boost::replace_all(config_value, config_key, "");
+			replace(config_value, config_key, "");
 			result = config_value;
 			break;
 		}
@@ -64,4 +104,5 @@ std::string read_config(std::string file_path, std::string config_key) {
 	f.close();
 	return result;
 }
+
 }

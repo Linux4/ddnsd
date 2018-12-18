@@ -6,13 +6,14 @@
 int main(int argc, char** argv) {
 	std::fstream f;
 	std::string config = "/etc/ddns/ddnsd.conf";
-	std::string update_checker = util::read_config(config, "update_checker = ");
-	if (update_checker == "true") {
+	bool update_checker = util::bool_from_string(
+			util::read_config(config, "update_checker = "));
+	if (update_checker) {
 		std::string remote_version =
 				www::get_content(
 						"https://raw.githubusercontent.com/Server24-7/ddnsd/master/.version");
-		boost::replace_all(remote_version, "\n", "");
-		boost::replace_all(remote_version, "\r", "");
+		util::replace_all(remote_version, "\n", "");
+		util::replace_all(remote_version, "\r", "");
 		if (remote_version != VERSION) {
 			if (remote_version.length() == 0) {
 				std::cout << "Could not check for updates!" << std::endl;
@@ -45,38 +46,32 @@ int main(int argc, char** argv) {
 	}
 
 	//Read config
-	std::string enabled;
-	enabled = util::read_config(config, "enabled = ");
-	if (enabled == "false") {
+	bool enabled = util::bool_from_string(
+			util::read_config(config, "enabled = "));
+	if (!enabled) {
 		std::cout
 				<< "/etc/ddns/ddnsd.conf: enabled is set to false... Stopping service..."
 				<< std::endl;
 		exit(0);
 	}
-	std::string update_freq_string;
-	update_freq_string = util::read_config(config, "update_freq = ");
-	std::string zones_string;
-	zones_string = util::read_config(config, "zones = ");
-	std::vector<std::string> zones;
-	boost::split(zones, zones_string, boost::is_any_of(","));
-	std::string cmds_string;
-	cmds_string = util::read_config(config, "post_update_cmds = ");
-	std::vector<std::string> cmds;
-	boost::split(cmds, cmds_string, boost::is_any_of(","));
-	std::string config_version;
-	config_version = util::read_config(config, "config_version = ");
-	std::string use_puckdns;
-	use_puckdns = util::read_config(config, "use_puckdns = ");
-	std::string puckdns_username;
-	puckdns_username = util::read_config(config, "puckdns_username = ");
-	std::string puckdns_password;
-	puckdns_password = util::read_config(config, "puckdns_password = ");
-	std::string puckdns_type = util::read_config(config, "puckdns_type = ");
-	std::string puckdns_domains_string;
-	puckdns_domains_string = util::read_config(config, "puckdns_domains = ");
-	std::vector<std::string> puckdns_domains;
-	boost::split(puckdns_domains, puckdns_domains_string,
-			boost::is_any_of(","));
+
+	long update_freq = atoi(
+			util::read_config(config, "update_freq = ").c_str());
+	std::vector<std::string> zones = util::split(
+			util::read_config(config, "zones = "), ',');
+	std::vector<std::string> cmds = util::split(
+			util::read_config(config, "post_update_cmds = "), ',');
+	std::string config_version = util::read_config(config, "config_version = ");
+	bool use_puckdns = util::bool_from_string(
+			util::read_config(config, "use_puckdns = "));
+	std::string puckdns_username = util::read_config(config,
+			"puckdns_username = ");
+	std::string puckdns_password = util::read_config(config,
+			"puckdns_password = ");
+	int puckdns_type = atoi(
+			util::read_config(config, "puckdns_type = ").c_str());
+	std::vector<std::string> puckdns_domains = util::split(
+			util::read_config(config, "puckdns_domains = "), ',');
 
 	f.open("/run/ddnsd.pid", std::ios::out);
 	f << getpid();
@@ -133,12 +128,9 @@ int main(int argc, char** argv) {
 		exit(1);
 	}
 
-	int update_freq = atoi(update_freq_string.c_str());
-	update_freq_string.clear();
-
 	//Check if update frequency is a number and greater 0
 	if (update_freq == 0) {
-		std::cerr << "ERROR: The given update frequency (" << update_freq_string
+		std::cerr << "ERROR: The given update frequency (" << update_freq
 				<< ") is not a valid number!" << std::endl;
 		std::cerr << "The number has to be greater than 0!" << std::endl;
 		exit(1);
@@ -184,8 +176,8 @@ int main(int argc, char** argv) {
 			}
 
 			if (IP != OLDIP || IP6 != OLDIP6) {
-				if (use_puckdns == "true") {
-					int type = atoi(puckdns_type.c_str());
+				if (use_puckdns) {
+					int type = puckdns_type;
 					std::cout << "Starting PDNS updater (Mode: " << type << ")"
 							<< std::endl;
 					if (type == 0) {
@@ -251,9 +243,7 @@ int main(int argc, char** argv) {
 
 				// Execute Post-update cmds
 				for (std::string tmpStr : cmds) {
-					char cmd[sizeof(tmpStr)];
-					strncpy(cmd, tmpStr.c_str(), sizeof(tmpStr));
-					system(cmd);
+					system(tmpStr.c_str());
 				}
 			}
 		}

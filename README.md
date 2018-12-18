@@ -23,7 +23,6 @@ which is always up to date.
 - g++
 - make
 - libcurl4-openssl-dev
-- libboost-dev
 
 ## Installation:  
 - Please run the installer as root

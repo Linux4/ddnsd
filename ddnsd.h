@@ -8,10 +8,8 @@
 #include <sstream>
 #include <stdio.h>
 #include <unistd.h>
-#include <boost/algorithm/string/replace.hpp>
 #include <array>
 #include <cstdio>
-#include <boost/algorithm/string.hpp>
 #include <vector>
 #include <arpa/inet.h>
 #include <sys/stat.h>
@@ -32,24 +30,27 @@ bool is_ipv6_address(const std::string& str) {
 
 void updateip(std::string zone, std::string OLDIP, std::string IP, bool ipv6) {
 	std::vector<std::string> zone_name_path;
-	boost::split(zone_name_path, zone, boost::is_any_of(":"));
+	zone_name_path = util::split(zone, ':');
 	int zonesize = zone_name_path.size();
 	std::string zone_path;
 	std::string zone_name;
+
 	if (zonesize == 2) {
 		zone_name = zone_name_path.at(0);
 		zone_path = zone_name_path.at(1);
 	} else {
 		zone_path = zone;
 		zone_name = zone;
-		boost::replace_all(zone_name, "/etc/bind/db.", "");
+		util::replace_all(zone_name, "/etc/bind/db.", "");
 	}
+
 	//Check if given DNS Zone file exists
 	if (!(util::file_exists(zone_path))) {
 		std::cerr << "ERROR: The given DNS Zone file (" << zone_path
 				<< ") does not exist!" << std::endl;
 		return;
 	}
+
 	std::fstream f;
 	//Get actual serial + zone version
 	f.open("/etc/ddns/.serial_old.ddns", std::ios::out);
@@ -62,10 +63,12 @@ void updateip(std::string zone, std::string OLDIP, std::string IP, bool ipv6) {
 	f << date_dig;
 	f.close();
 	std::string version_dig = serial_dig;
-	boost::replace_all(version_dig, date_dig, "");
+	util::replace_all(version_dig, date_dig, "");
+
 	if (version_dig.substr(0, 1) == "0") {
-		boost::replace_all(version_dig, "0", "");
+		util::replace_all(version_dig, "0", "");
 	}
+
 	f.open("/etc/ddns/.version.ddns", std::ios::out);
 	f << version_dig;
 	f.close();
@@ -84,6 +87,7 @@ void updateip(std::string zone, std::string OLDIP, std::string IP, bool ipv6) {
 	std::string date;
 	getline(f, date, '\0');
 	f.close();
+
 	//Check if DNS Zone already was updated at the same day
 	if (date_old != date) {
 		//If not set DNS Zone Version to 0
@@ -95,6 +99,7 @@ void updateip(std::string zone, std::string OLDIP, std::string IP, bool ipv6) {
 		f << zeit;
 		f.close();
 	}
+
 	//Read DNS Zone Version
 	f.open("/etc/ddns/.version.ddns", std::fstream::in);
 	std::string version_str;
@@ -109,6 +114,7 @@ void updateip(std::string zone, std::string OLDIP, std::string IP, bool ipv6) {
 	f.open("/etc/ddns/.version.ddns", std::ios::out);
 	f << version;
 	f.close();
+
 	//Check if there were 10 or more updates at the same day
 	if (version_int >= 10) {
 		//If yes generate date without 0 as placeholder at the end
@@ -121,6 +127,7 @@ void updateip(std::string zone, std::string OLDIP, std::string IP, bool ipv6) {
 		getline(f, date, '\0');
 		f.close();
 	}
+
 	//Add Version to date to create DNS Zone Serial
 	std::string serial = date + version;
 	//Read actual DNS Zone Serial
@@ -132,12 +139,14 @@ void updateip(std::string zone, std::string OLDIP, std::string IP, bool ipv6) {
 	f.open("/etc/ddns/.serial_old.ddns", std::ios::out);
 	f << serial;
 	f.close();
+
 	//Write new IP to file
 	if (!ipv6) {
 		f.open("/etc/ddns/.oldip.ddns", std::ios::out);
 	} else {
 		f.open("/etc/ddns/.oldip6.ddns", std::ios::out);
 	}
+
 	f << IP;
 	f.close();
 	//Read DNS Zone file
@@ -147,13 +156,13 @@ void updateip(std::string zone, std::string OLDIP, std::string IP, bool ipv6) {
 	f.close();
 	//Replace in DNS Zone: OLDIP with IP and serial_old with serial
 	std::string n = "\n";
-	boost::replace_all(IP, "\n", "");
-	boost::replace_all(IP, "\r", "");
-	boost::replace_all(OLDIP, "\n", "");
-	boost::replace_all(dnszone, OLDIP, IP);
-	boost::replace_all(serial_old, "\n", "");
-	boost::replace_all(serial, "\n", "");
-	boost::replace_all(dnszone, serial_old, serial);
+	util::replace_all(IP, "\n", "");
+	util::replace_all(IP, "\r", "");
+	util::replace_all(OLDIP, "\n", "");
+	util::replace_all(dnszone, OLDIP, IP);
+	util::replace_all(serial_old, "\n", "");
+	util::replace_all(serial, "\n", "");
+	util::replace_all(dnszone, serial_old, serial);
 	//Write DNS Zone to file
 	f.open(zone_path, std::ios::out);
 	f << dnszone;

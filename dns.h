@@ -6,7 +6,6 @@
 #include <netinet/in.h>
 #include <resolv.h>
 #include <sstream>
-#include <boost/algorithm/string/erase.hpp>
 
 namespace dns {
 
@@ -30,9 +29,9 @@ std::string get_serial(std::string domain) {
 			std::string line;
 			getline(f, line);
 			if (i == 1) {
-				boost::erase_all(line, " ");
-				boost::erase_all(line, "\t");
-				boost::erase_all(line, ";serial");
+				util::replace_all(line, " ", "");
+				util::replace_all(line, "\t", "");
+				util::replace_all(line, ";serial", "");
 				return line;
 			}
 		}

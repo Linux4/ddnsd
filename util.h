@@ -34,9 +34,11 @@ std::vector<std::string> split(std::string str, char token) {
 	std::istringstream ss(str);
 	std::vector<std::string> broken;
 	std::string tmp;
+
 	while (std::getline(ss, tmp, token)) {
 		broken.push_back(tmp);
 	}
+
 	return broken;
 }
 
@@ -52,6 +54,7 @@ struct Time {
 	Time(std::time_t tm, const std::string format) :
 			m_tm(tm), m_format(format) {
 	}
+
 	friend std::ostream& operator<<(std::ostream& out, const Time& t) {
 		typedef std::ostreambuf_iterator<char> out_type;
 		typedef std::time_put<char, out_type> time_put_facet_type;
@@ -62,6 +65,7 @@ struct Time {
 				pattern, pattern + t.m_format.size());
 		return out;
 	}
+
 private:
 	std::time_t m_tm;
 	std::string m_format;
@@ -76,15 +80,18 @@ std::string shell_exec(std::string cmd) {
 	std::array<char, 1024> buffer;
 	std::string result;
 	std::shared_ptr<FILE> pipe(popen(cmd.c_str(), "r"), pclose);
+
 	if (!pipe) {
 		std::cerr << "ERROR executing " << cmd << std::endl;
 		exit(1);
 	}
+
 	while (!feof(pipe.get())) {
 		if (fgets(buffer.data(), 1024, pipe.get()) != nullptr) {
 			result += buffer.data();
 		}
 	}
+
 	return result;
 }
 
@@ -94,6 +101,7 @@ std::string read_config(std::string file_path, std::string config_key) {
 	std::string config_value;
 	f.open(file_path, std::fstream::in);
 	int length = config_key.length();
+
 	while (getline(f, config_value)) {
 		if (config_value.substr(0, length) == config_key) {
 			replace(config_value, config_key, "");
@@ -101,6 +109,7 @@ std::string read_config(std::string file_path, std::string config_key) {
 			break;
 		}
 	}
+
 	f.close();
 	return result;
 }

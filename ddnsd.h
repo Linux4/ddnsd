@@ -108,8 +108,6 @@ void updateip(std::string zone, std::string OLDIP, std::string IP, bool ipv6) {
 	f << IP;
 	f.close();
 
-	std::cout << serial_dig << std::endl;
-
 	std::cout << "DNS Zone " << zone_name << " was updated to Serial " << serial
 			<< " !" << std::endl;
 }

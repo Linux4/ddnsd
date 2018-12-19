@@ -5,29 +5,43 @@
 #include <chrono>
 #include <fstream>
 #include <memory>
+#include <iomanip>
 
 namespace util {
 
-bool replace(std::string& str, const std::string& replace,
-		const std::string& replacement) {
-	size_t start_pos = str.find(replace);
-	if (start_pos != std::string::npos) {
-		str.replace(start_pos, replace.length(), replacement);
-		return true;
-	}
+inline bool replace(std::string &source, const std::string& from,
+		const std::string& to) {
+	if (!from.empty()) {
+		size_t pos = source.find(from);
 
+		if (pos != std::string::npos) {
+			source.replace(pos, from.length(), to);
+		}
+
+	}
 	return false;
 }
 
-std::string replace_all(std::string& str, const std::string& replace,
-		const std::string& replacement) {
-	size_t start_pos = 0;
-	while ((start_pos = str.find(replace, start_pos)) != std::string::npos) {
-		str.replace(start_pos, replace.length(), replacement);
-		start_pos += replacement.length();
-	}
+void replace_all(std::string& source, const std::string& from,
+		const std::string& to) {
+	if (!from.empty()) {
+		std::string new_string;
+		new_string.reserve(source.length());  // avoids a few memory allocations
 
-	return str;
+		std::string::size_type lastPos = 0;
+		std::string::size_type findPos;
+
+		while (std::string::npos != (findPos = source.find(from, lastPos))) {
+			new_string.append(source, lastPos, findPos - lastPos);
+			new_string += to;
+			lastPos = findPos + from.length();
+		}
+
+		// Care for the rest after last occurrence
+		new_string += source.substr(lastPos);
+
+		source.swap(new_string);
+	}
 }
 
 std::vector<std::string> split(std::string str, char token) {
@@ -50,26 +64,12 @@ bool bool_from_string(std::string str) {
 	}
 }
 
-struct Time {
-	Time(std::time_t tm, const std::string format) :
-			m_tm(tm), m_format(format) {
-	}
-
-	friend std::ostream& operator<<(std::ostream& out, const Time& t) {
-		typedef std::ostreambuf_iterator<char> out_type;
-		typedef std::time_put<char, out_type> time_put_facet_type;
-		const time_put_facet_type& fac = std::use_facet<time_put_facet_type>(
-				out.getloc());
-		const char* pattern = t.m_format.c_str();
-		fac.put(out_type(out), out, out.fill(), std::localtime(&t.m_tm),
-				pattern, pattern + t.m_format.size());
-		return out;
-	}
-
-private:
-	std::time_t m_tm;
-	std::string m_format;
-};
+inline std::string time(time_t rawtime, const std::string format) {
+	std::stringstream buffer;
+	struct std::tm * ptm = localtime(&rawtime);
+	buffer << std::put_time(ptm, format.c_str());
+	return buffer.str();
+}
 
 inline bool file_exists(const std::string& name) {
 	struct stat buffer;

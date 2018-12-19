@@ -1,7 +1,6 @@
 #include "ddnsd.h"
 
-#define BUILD_DATE util::Time(time(0), "%Y-%m-%d")
-#define VERSION "v6.1.0"
+#define VERSION "v6.2.0"
 
 int main(int argc, char** argv) {
 	std::fstream f;
@@ -32,9 +31,12 @@ int main(int argc, char** argv) {
 	if (argc > 1) {
 		if (std::string(argv[1]) == "-version"
 				|| std::string(argv[1]) == "--version") {
-			std::cout << "DDNSD " << VERSION << " " << BUILD_DATE<< " (g++ version " << __VERSION__ << ")" << std::endl;
+			std::cout << "DDNSD " << VERSION << " " << "(compiled " << __DATE__
+					<< " " << __TIME__ << " with g++ version " << __VERSION__
+					<< ")" << std::endl;
 			exit(0);
-		} else if(std::string(argv[1]) == "-firstrun" || std::string(argv[1]) == "--firstrun") {
+		} else if (std::string(argv[1]) == "-firstrun"
+				|| std::string(argv[1]) == "--firstrun") {
 			f.open("/etc/ddns/.oldip.ddns", std::ios::out);
 			f << www::get_content("https://v4.ident.me");
 			f.close();
@@ -143,11 +145,11 @@ int main(int argc, char** argv) {
 			//Read last known IP-Adress
 			f.open("/etc/ddns/.oldip.ddns", std::fstream::in);
 			std::string OLDIP;
-			getline(f, OLDIP, '\0');
+			getline(f, OLDIP, '\n');
 			f.close();
 			f.open("/etc/ddns/.oldip6.ddns", std::fstream::in);
 			std::string OLDIP6;
-			getline(f, OLDIP6, '\0');
+			getline(f, OLDIP6, '\n');
 			f.close();
 
 			//Get current IP-Adress

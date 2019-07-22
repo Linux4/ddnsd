@@ -1,0 +1,36 @@
+ddnsd (6.2.0) stable; urgency=medium
+
+  * remove some very old lines of code
+
+ -- Tim Zimmermann <tim.zimmermann@linux4.de>  Wed, 19 Dec 2018 18:05:07 +0200
+
+ddnsd (6.1.0) stable; urgency=medium
+
+  * remove libboost-dev dependency
+
+ -- Tim Zimmermann <tim.zimmermann@linux4.de>  Tue, 18 Dec 2018 17:22:10 +0200
+
+ddnsd (6.0.1) stable; urgency=medium
+
+  * Fix Puck.Nether.net not saving cookies
+
+ -- Tim Zimmermann <tim.zimmermann@linux4.de>  Mon, 17 Dec 2018 18:00:42 +0200
+
+ddnsd (6.0.0) stable; urgency=medium
+
+  * Add Puck.Nether.net NS02 Master-IP updater
+
+ -- Tim Zimmermann <tim.zimmermann@linux4.de>  Mon, 17 Dec 2018 17:31:21 +0200
+
+ddnsd (5.3.0) stable; urgency=medium
+
+  * Use libcurl-openssl-dev and resolv.h instead of calling curl and dig on command line
+
+ -- Tim Zimmermann <tim.zimmermann@linux4.de>  Thu, 01 Nov 2018 14:56:50 +0200
+
+ddnsd (5.1.5) stable; urgency=medium
+
+  * First Source release in the APT Repository
+
+ -- Tim Zimmermann <tim.zimmermann@linux4.de>  Sun, 29 Jul 2018 6:53:18 +0200
+

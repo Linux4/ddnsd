@@ -1,5 +1,8 @@
+VERSION := $(shell cat .version)
+VERSION := ${VERSION:v%=%}
+
 default:
-	g++ -O2 -march=native ddnsd.cpp -o ddnsd -lresolv -lcurl
+	g++ -O3 ddnsd.cpp -o ddnsd -lresolv -lcurl
 
 install:
 	@mkdir -p /etc/ddns/
@@ -29,3 +32,28 @@ uninstall:
 
 clean:
 	rm -f ddnsd
+	rm -rf debian/tmp
+	rm -f debian/files
+
+deb-pkg:
+	dpkg-buildpackage
+
+deb-files:
+	@mkdir -p debian/tmp/lib/systemd/system/
+	@mkdir -p debian/tmp/usr/bin/
+	@mkdir -p  debian/tmp/etc/ddns/
+	@echo "" > debian/tmp/etc/ddns/ddnsd.conf
+	@echo "0" > debian/tmp/etc/ddns/.installed.ddns
+	@echo "" > debian/tmp/etc/ddns/.oldip.ddns
+	@echo "" > debian/tmp/etc/ddns/.oldip6.ddns
+	@echo "[Unit]\nDescription=DDNS Daemon\nAfter=network.target bind9.service\n\n[Service]\nExecStart=/usr/bin/ddnsd\nPIDFile=/run/ddnsd.pid\n\n[Install]\nWantedBy=multi-user.target\n" > debian/tmp/lib/systemd/system/ddnsd.service
+	@cp ./ddnsd debian/tmp/usr/bin/
+	@echo "ddnsd_${VERSION}_${DEB_TARGET_ARCH}.buildinfo utils optional" >> debian/files
+	@echo "ddnsd_${VERSION}_${DEB_TARGET_ARCH}.deb utils optional" >> debian/files
+	@mkdir -p debian/tmp/DEBIAN
+	@cp debian/raw/conffiles debian/tmp/DEBIAN/
+	@cp debian/raw/postinst debian/tmp/DEBIAN/
+	@cp debian/raw/control debian/tmp/DEBIAN/
+	@sed -i "s/<ARCH>/${DEB_TARGET_ARCH}/g" debian/tmp/DEBIAN/control
+	@sed -i "s/<VERSION>/${VERSION}/g" debian/tmp/DEBIAN/control
+	dpkg-deb --build debian/tmp ../ddnsd_${VERSION}_${DEB_TARGET_ARCH}.deb

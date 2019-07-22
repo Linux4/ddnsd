@@ -1,5 +1,5 @@
 # ddnsd  
-Author: Tim Zimmermann <tim.zimmermann@server24-7.eu>  
+Author: Tim Zimmermann <tim.zimmermann@linux4.de>  
   
 ## Description:   
 Ddnsd is a background service to dynamically update  

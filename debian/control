@@ -1,0 +1,13 @@
+Source: ddnsd
+Section: utils
+Priority: optional
+Maintainer: Tim Zimmermann <tim.zimmermann@linux4.de>
+Build-Depends: g++, make, libcurl4-openssl-dev
+Standards-Version: 3.9.8
+
+Package: ddnsd
+Depends: bind9 (>= 9.0), systemd, libcurl4
+Architecture: all
+Section: utils
+Priority: optional
+Description: DDNSD is a background service to dynamically update your IP-Adress in a DNS Zone file. It is compatible with most linux / unix based operating systems.

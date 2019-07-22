@@ -1,0 +1,8 @@
+#!/usr/bin/make -f
+
+clean:
+	@make clean
+build:
+	@make
+binary:
+	@make deb-files

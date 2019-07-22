@@ -1,0 +1,11 @@
+Package: ddnsd
+Version: <VERSION>
+Maintainer: Tim Zimmermann <tim.zimmermann@server24-7.eu>
+Depends: bind9 (>= 9.0), systemd, libcurl4
+Architecture: <ARCH>
+Source: ddnsd
+Section: utils
+Priority: optional
+Download-Size: 36K
+Installed-Size: 44K
+Description: DDNSD is a background service to dynamically update your IP-Adress in a DNS Zone file. It is compatible with most linux / unix based operating systems.

@@ -1,0 +1,4 @@
+/etc/ddns/ddnsd.conf
+/etc/ddns/.installed.ddns
+/etc/ddns/.oldip.ddns
+/etc/ddns/.oldip6.ddns

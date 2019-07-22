@@ -23,7 +23,7 @@ int main(int argc, char** argv) {
 						<< "To update clone the following Git Repository: https://github.com/Server24-7/ddnsd"
 						<< std::endl;
 				std::cout
-						<< "Or use the APT Repository http://deb.server24-7.eu/"
+						<< "Or use the APT Repository http://deb.linux4.de/"
 						<< std::endl;
 			}
 		}

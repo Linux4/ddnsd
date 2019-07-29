@@ -42,7 +42,6 @@ deb-files:
 	@mkdir -p debian/tmp/lib/systemd/system/
 	@mkdir -p debian/tmp/usr/bin/
 	@mkdir -p  debian/tmp/etc/ddns/
-	@echo "" > debian/tmp/etc/ddns/ddnsd.conf
 	@echo "0" > debian/tmp/etc/ddns/.installed.ddns
 	@echo "" > debian/tmp/etc/ddns/.oldip.ddns
 	@echo "" > debian/tmp/etc/ddns/.oldip6.ddns
@@ -54,6 +53,7 @@ deb-files:
 	@cp debian/raw/conffiles debian/tmp/DEBIAN/
 	@cp debian/raw/postinst debian/tmp/DEBIAN/
 	@cp debian/raw/control debian/tmp/DEBIAN/
+	@cp debian/raw/ddnsd.conf debian/tmp/etc/ddns/ddnsd.conf
 	@sed -i "s/<ARCH>/${DEB_TARGET_ARCH}/g" debian/tmp/DEBIAN/control
 	@sed -i "s/<VERSION>/${VERSION}/g" debian/tmp/DEBIAN/control
 	dpkg-deb --build debian/tmp ../ddnsd_${VERSION}_${DEB_TARGET_ARCH}.deb

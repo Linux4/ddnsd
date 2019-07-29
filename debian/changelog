@@ -1,3 +1,10 @@
+
+ddnsd (6.2.1) stable; urgency=medium
+
+  * fix bug in dns.h which causes zeros to be replaced with zone serial
+
+ -- Tim Zimmermann <tim.zimmermann@linux4.de>  Mon, 29 Jul 2019 15:35:50 +0200
+
 ddnsd (6.2.0) stable; urgency=medium
 
   * remove some very old lines of code

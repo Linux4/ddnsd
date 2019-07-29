@@ -15,7 +15,7 @@ std::string get_serial(std::string domain) {
 	msg_length = res_query(domain.c_str(), ns_c_any, ns_t_soa, nsbuffer,
 			sizeof(nsbuffer));
 	if (msg_length < 0) {
-		return "0";
+		return "1970010101";
 	} else {
 		ns_msg msg;
 		ns_initparse(nsbuffer, msg_length, &msg);
@@ -35,7 +35,7 @@ std::string get_serial(std::string domain) {
 				return line;
 			}
 		}
-		return "0";
+		return "1970010101";
 	}
 }
 }

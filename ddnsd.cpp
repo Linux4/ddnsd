@@ -1,6 +1,6 @@
 #include "ddnsd.h"
 
-#define VERSION "v6.2.0"
+#define VERSION "v6.2.1"
 
 int main(int argc, char** argv) {
 	std::fstream f;

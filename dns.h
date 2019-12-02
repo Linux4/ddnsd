@@ -1,3 +1,6 @@
+#ifndef _DNS_H
+#define _DNS_H
+
 #include <cstdlib>
 #include <stdio.h>
 #include <iostream>
@@ -6,6 +9,7 @@
 #include <netinet/in.h>
 #include <resolv.h>
 #include <sstream>
+#include "util.h"
 
 namespace dns {
 
@@ -39,3 +43,5 @@ std::string get_serial(std::string domain) {
 	}
 }
 }
+
+#endif /* !_DNS_H */

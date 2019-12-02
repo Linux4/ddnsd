@@ -1,3 +1,6 @@
+#ifndef _DDNS_H
+#define _DDNS_H
+
 #include <iostream>
 #include <stdlib.h>
 #include <fstream>
@@ -113,3 +116,4 @@ void updateip(std::string zone, std::string OLDIP, std::string IP, bool ipv6) {
 }
 }
 
+#endif /* !_DDNS_H */

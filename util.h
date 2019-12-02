@@ -1,3 +1,6 @@
+#ifndef _UTIL_H
+#define _UTIL_H
+
 #include <iostream>
 #include <string>
 #include <sys/stat.h>
@@ -6,6 +9,7 @@
 #include <fstream>
 #include <memory>
 #include <iomanip>
+#include <vector>
 
 namespace util {
 
@@ -115,3 +119,5 @@ std::string read_config(std::string file_path, std::string config_key) {
 }
 
 }
+
+#endif /* !_UTIL_H */

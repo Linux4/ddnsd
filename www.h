@@ -1,3 +1,6 @@
+#ifndef _WWW_H
+#define _WWW_H
+
 #include <iostream>
 #include <string>
 #include <curl/curl.h>
@@ -66,3 +69,5 @@ long access_logged_in(std::string url, CURL* curl) {
 }
 
 }
+
+#endif /* !_WWW_H */
